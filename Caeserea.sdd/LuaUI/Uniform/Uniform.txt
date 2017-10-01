@@ -1,0 +1,10 @@
+return {
+ uniformInt = {
+            texSampler = 0,
+            pointSize  = 0,
+        },
+        uniformFloat = {
+            time = 0,
+        },
+
+}

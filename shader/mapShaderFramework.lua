@@ -1,8 +1,8 @@
 function widget:GetInfo()
 	return {
 		name      = "MapShaderFramework",
-		desc      = "MapShader demo",
-		author    = "gajop",
+		desc      = "MapShader",
+		author    = "A very drunk picasso and his cousin",
 		date      = "",
 		license   = "",
 		layer     = 0,
@@ -12,14 +12,21 @@ end
 
 
 --Name of the Shader Subfolders
-FragmentDIR = "Fragments"
+FragmentDIR = "Fragment"
 VertexDIR = "Vertex"
+UniformDIR = "Uniform"
+
+FileEndingVertex =".vs"
+FileEndingFragment =".fs"
 
 --Name of the mainDirectory within the spring directory
 RootDIR = "Shaders"
 
 local shader =  {}
+function getUniformDirectory()
+return RootDIR.."/"..UniformDIR
 
+end
 function getFragmentDirectory()
 	return  RootDIR.."/".. FragmenDIR
 end
@@ -28,29 +35,60 @@ function getVertexDirectory()
 	return  CentralDIR.."/".. VertexDIR
 end
 
---Loads a list of files from a given Directory
+--Loads a list of files from a given Directory - returns the full filepath
 function getDirectoryContentList(Path)
---TODO
-	local f = io.popen("dir \"C:\\users\\\"")
-	if f then
-		print(f:read("*a"))
-	else
-		print("failed to read")
+fileList = VFS.DirList(Path)
+	for i=1,#fileList do
+		fileList[i]= Path.."/"..fileList[i]
 	end
-
+return fileList
 end
 
---Verifies wether 
-function checkShaderCompleteness(listOfVertexFiles, listOfFragmentFiles)
+matchCounter=1
+boolReMainderCut= false
+--TODO Find a waterproof main detector
+function foundMainStartCompleted(line)
+index=1
 
-	Spring.Echo("Could not find "..fileName)
-	--TODO
-	return true
+stringComponents= {
+[1] = "void",
+[2] = "main",
+[3] = "%(",
+[4] = "%)",
+[5] = "{"
+}
+
+start,ends=0,0
+	for i= matchCounter,#stringComponents do
+	print(line,stringComponents[i])
+		start, ends =string.find(line, stringComponents[i],index)
+		if start then
+			index = ends+1
+			matchCounter=matchCounter +1
+		elsebfu	
+			break
+		end
+	end
+boolMainStarted =  matchCounter > 1
+boolMainStartCompleted = matchCounter == #stringComponents +1 
+
+if boolMainStartCompleted == true and  boolReMainderCut == false then 
+	boolReMainderCut= true
+	line = string.sub(line, ends+1,#line)
 end
 
-function loadFile(fileName)
+return boolMainStarted,boolMainStartCompleted, line
+end
 
 
+function loadFile(filePathAndName)
+
+result= VFS.LoadFile(filePathAndName)
+	if not result then 
+		Spring.Echo("File not loaded "..filePathAndName)
+	else
+		return result
+	end
 end
 
 patternsToIgnore = {
@@ -64,158 +102,190 @@ function ignoreLine(line)
 return false
 end
 
+Stack = {}
+
+-- Create a Table with stack functions
+function Stack:Create()
+
+  -- stack table
+  local t = {}
+  -- entry table
+  t._et = {}
+
+  -- push a value on to the stack
+  function t:push(...)
+    if ... then
+      local targs = {...}
+      -- add values
+      for _,v in ipairs(targs) do
+        table.insert(self._et, v)
+      end
+    end
+  end
+  -- get entries
+  function t:getn()
+    return #self._et
+  end
+
+  -- pop a value from the stack
+  function t:pop(num)
+
+    -- get num values from stack
+    local num = num or 1
+
+    -- return table
+    local entries = {}
+
+    -- get values into entries
+    for i = 1, num do
+      -- get last entry
+      if #self._et ~= 0 then
+        table.insert(entries, self._et[#self._et])
+        -- remove last value
+        table.remove(self._et)
+      else
+        break
+      end
+    end
+    -- return unpacked entries
+    return unpack(entries)
+  end
+
+
+  -- list values
+  function t:list()
+    for i,v in pairs(self._et) do
+      print(i, v)
+    end
+  end
+  return t
+end
+
+-- update the parenthesis stack
+function parentThesis(line, parenthesisStack)
+for i = 1, #line do
+    local c = line:sub(i,i)
+	if parenthesisStack.getn()==0 then return parenthesisStack end
+    if c == "{" then parenthesisStack.push(true) end
+    if c == "}" then parenthesisStack.pop() end
+end
+return parenthesisStack
+end
+
+
+
+
+function trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+
+
 --extracts the Context, the Uniforms
 function extractContextMain(listOfFiles)
 concatContext, concatMain = "", ""
 boolMainStarted = false
-Uniform = {}  -- [Name] = {Typ, InitValue}
+boolMainStartCompleted= false
+
+
 
 
 	for num, fileName in pairs (listOfFiles) do
 		file = loadFile(fileName)
+		parenthesisStack = Stack:Create()
+		
 		concatContext= concatContext.. "/* "..fileName.." Context */\n"
 		for line in file:lines() do
 			if ignoreLine(line) == false then
 
-				if not line:gmatch("") or boolMainStarted == true then
+			boolMainStarted, boolMainStartCompleted,line = foundMainStartCompleted(line)
+				if boolMainStarted == false or parenthesisStack.getn()== 0 then
 					concatContext= concatContext.."\n"..
-
-				else
-				--TODO Count parantheses
-
-
 				end
-			end
+				
+				if boolMainStarted == true and boolMainStartCompleted== true  then
+					parenthesisStack.push(true)
+				end	
+				
+						
+				if boolMainStartCompleted == true and parenthesisStack.getn() > 0  then
+					parenthesisStack= parentThesis(line,parenthesisStack)
+					if parenthesisStack.getn() > 0 then
+						concatMain = concatMain..line
+					end
+				end
 
+			end
 		end
 	end
 	
-return vertexAggregatedContext, vertexAggregatedMain, Uniform
+	
+return concatContext, concatMain
 end
 
-function addUniformTables(shaderT, uniformVertex, uniformFragment)
---TODO
+function sortByNumberInName( listOfFiles, fileEnding)
+local retTable={}
+index=1
+	for _,name in pairs(listOfFiles) do
+	_,start= string.find(name,"_")
+	strend,_= string.find(name,fileEnding)
+	number= trim(string.gsub(string.sub(name,start+1,strend),"_",""))
+	index = tonumber(number)
+	retTable[index]=name
 
-shaderT.uniformInt = {
-            texSampler = 0,
-            pointSize  = 0,
-        }
+	end
 
-shaderT.uniformFloat=		,
-        {
-            time = 0,
-        }
+end
+
+
+function loadUniform(shaderT)
+-- load the uniform sourcecode fromt he uniformfolder
+file = VFS.LoadFile(getUniformDirectory())
+if not file then Spring.Echo("No Uniform Sourcefile found at "..getUniformDirectory()); return shaderT end
+uniformFunction = loadstring(uniformCode)
+uniformTables= uniformFunction()
+
+	for key, value in pairs(uniformTables) do
+		shaderT[key] = value
+	end
 
 return shaderT
-
 end
 
 
-function loadShader()
+function loadMapShader()
 
-listOfVertexFiles	= getDirectoryContentList(getVertexDirectory())
-listOfFragmentFiles	= getDirectoryContentList(getVertexDirectory())
+	listOfVertexFiles	= getDirectoryContentList(getVertexDirectory())
+	listOfFragmentFiles	= getDirectoryContentList(getVertexDirectory())
 
-boolComplete = checkShaderCompleteness(listOfVertexFiles, listOfFragmentFiles)
+	listOfVertexFiles = sortByNumberInName( listOfVertexFiles, FileEndingVertex)
+	listOfFragmentFiles = sortByNumberInName( listOfFragmentFiles, FileEndingFragment)
 
-if boolComplete == false then 	return {} end
-
-
-listOfVertexFiles = sortByNumberInName( listOfVertexFiles)
-listOfFragmentFiles = sortByNumberInName( listOfFragmentFiles)
-
-vertexAggregatedContext, vertexAggregatedMain, uniformVertex = extractContextMain(listOfVertexFiles)
-fragmentAggregatedContext, fragmentAggregatedMain,uniformFragment  = extractContextMain(listOfVertexFiles)
+	vertexAggregatedContext, vertexAggregatedMain = extractContextMain(listOfVertexFiles)
+	fragmentAggregatedContext, fragmentAggregatedMain  = extractContextMain(listOfVertexFiles)
 
 
-shader.fragment = fragmentAggregatedContext.. "\n main() { \n"..fragmentAggregatedMain.."\n }"
-shader.vertex = vertexAggregatedContext.. "\n main() { \n"..vertexAggregatedMain.."\n }"
+	shader.fragment = fragmentAggregatedContext.. "\n main() { \n"..fragmentAggregatedMain.."\n }"
+	shader.vertex = vertexAggregatedContext.. "\n main() { \n"..vertexAggregatedMain.."\n }"
 
-shader = addUniformTables(shader,uniformVertex,uniformFragment)
+	shader = loadUniform(shader)
 
+	compiledMapShader =  gl.CreateShader(shader)
 
+ local errors = gl.GetShaderLog(shader)
+    if errors ~= "" then
+        Spring.Log("MapShaders", LOG.ERROR, errors)
+		Spring.Echo(shader.fragment)
+		Spring.Echo(shader.vertex)
+    end
+    Spring.SetMapShader(compiledMapShader, 0)
 end
 
 
 function widget:Initialize()
-	shader = {}
-	-- load shadders from folders
-	
-	-- extract 
+	loadMapShader()
 	
 	
-	
-    local vertexShader = [[
-        #define SMF_TEXSQR_SIZE 1024.0
-
-        uniform ivec2 texSquare;
-        varying vec2 texCoors;
-
-        varying vec4 colorChange;
-		varying vec4 vertexWorldPos;
-
-        uniform float time;
-        uniform float points[MAX_POINTS];
-        uniform int pointSize;
-
-        void main(void) {
-            texCoors = (floor(gl_Vertex.xz) / SMF_TEXSQR_SIZE) - vec2(texSquare);
-
-            vec4 pos = gl_Vertex;
-            colorChange = vec4(0, 0, 0, 1);
-            for (int i = 0; i < pointSize; i++) {
-                float d = distance(vec2(points[i*3], points[i*3+1]), pos.xz);
-                float dtime = time - points[i*3+2];
-
-                float timeFalloff = pow(dtime, 3) + 1;
-                float rangeFalloff = pow(d/400, 2) + 1;
-                float rangeFrequency = sin(d/1000 + 1);
-                pos.y += sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff;
-
-                colorChange += vec4(sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff) / 1000;
-            }
-            gl_Position = gl_ModelViewProjectionMatrix * pos;
-			vertexWorldPos = gl_Vertex;
-        }
-    ]]
-    vertexShader = vertexShader:gsub("MAX_POINTS", tostring(MAX_POINTS*3))
-    shader = gl.CreateShader({
-        vertex = vertexShader,
-
-        fragment = [[
-            uniform sampler2D texSampler;
-
-            varying vec2 texCoors;
-
-            varying vec4 colorChange;
-			varying vec4 vertexWorldPos;
-
-            void main(void) {
-                gl_FragColor = texture2D(texSampler, texCoors);
-				if (vertexWorldPos.x > 2000. && vertexWorldPos.x < 4000.) {
-					float w = sqrt((vertexWorldPos.x - 3000.) * (vertexWorldPos.x - 3000.));
-					w /= 1000;
-					w = min(1., w);
-					gl_FragColor.rgb = mix(vec3(vertexWorldPos.y)/1024., gl_FragColor.rbg, w);//vec3((gl_FragColor.r + gl_FragColor.g + gl_FragColor.b) / 3.);
-				}
-                //gl_FragColor += colorChange;
-            }
-        ]],
-
-        uniformInt = {
-            texSampler = 0,
-            pointSize  = 0,
-        },
-        uniformFloat = {
-            time = 0,
-        },
-    })
-
-    local errors = gl.GetShaderLog(shader)
-    if errors ~= "" then
-        Spring.Log("MapShaders", LOG.ERROR, errors)
-    end
-    Spring.SetMapShader(shader, 0)
 end
 
 function widget:Shutdown()
@@ -223,14 +293,11 @@ function widget:Shutdown()
 end
 
 function widget:DrawWorld()
-    gl.UseShader(shader)
-    if not timeID then
-        timeID         = gl.GetUniformLocation(shader, "time")
-        pointsID       = gl.GetUniformLocation(shader, "points")
-        pointSizeID    = gl.GetUniformLocation(shader, "pointSize")
-    end
-    gl.Uniform(     timeID,       os.clock())
-    gl.UniformInt(  pointSizeID,  #points/3)
-    gl.UniformArray(pointsID,     1, points)
+    gl.UseShader(compiledMapShader)
+	
+	if shader.bindUniforms then 	shader.bindUniforms()	end
+	
+	if shader.updateUniforms then shader.updateUniforms(os.clock()) end
+	
     gl.UseShader(0)
 end
