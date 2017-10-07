@@ -29,8 +29,8 @@ local mapinfo = {
 
 
 	smf = {
-		minheight = 10,
-		maxheight = 256,
+		minheight = 589,
+		maxheight = 1152,
 		--smtFileName0 = "",
 		--smtFileName1 = "",
 		--smtFileName.. = "",
@@ -95,21 +95,20 @@ local mapinfo = {
 	},
 
 	resources = {
-		--grassBladeTex = "",
-
-		--grassShadingTex = "",
-		--detailTex = "",
-		--specularTex = "",
-		--splatDetailTex = "",
-		--splatDistrTex = "",
+		grassBladeTex = "grassbladetex.bmp",
+		grassShadingTex = "grassshading.bmp",
+		detailTex = "terradetail.bmp",
+		specularTex = "spec.tif",
+		splatDetailTex = "splatt.tif",
+		splatDistrTex = "splatd.tif",
 		--skyReflectModTex = "",
 		--detailNormalTex = "",
 		--lightEmissionTex = "",
 	},
 
 	splats = {
-		texScales = {0.02, 0.02, 0.02, 0.02},
-		texMults  = {1.0, 1.0, 1.0, 1.0},
+		texScales = {0.02, 0.006125, 0.003125, 0.006125},
+		texMults  = {2.14159, 1.414, 1.9141, 0.91},
 	},
 
 	atmosphere = {

@@ -1,0 +1,2 @@
+#!/bin/sh
+java -cp springmapedit.jar:lib_osx64/gluegen-rt.jar:lib_osx64/jogl.jar:lib_osx64/swt.jar -XstartOnFirstThread -Xms512m -Xmx4g -Djava.library.path=lib_osx64 application.SpringMapEditApplication

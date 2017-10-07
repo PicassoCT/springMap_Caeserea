@@ -1,0 +1,9 @@
+.idea
+.idea/*
+build
+build/*
+dist
+dist/*
+bin
+bin/*
+springmapedit.jar
