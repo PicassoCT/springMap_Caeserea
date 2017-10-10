@@ -5,10 +5,12 @@ function gadget:GetInfo()
 		author    = "Gnome, Smoth",
 		date      = "August 2008",
 		license   = "PD",
-		layer     = 0,
+		layer     = 452,
 		enabled   = true  --  loaded by default?
 	}
 end
+
+
 
 if (not gadgetHandler:IsSyncedCode()) then
   return false
@@ -38,8 +40,8 @@ if VFS.FileExists("mapconfig/featureplacer/config.lua") then
 	buildinglist = featurecfg.buildinglist
 	unitlist     = featurecfg.unitlist
 else
-	Spring.Echo("missing file")
-	Spring.Echo("No features loaded")
+	Spring.Echo("Featureplacer: missing file")
+	Spring.Echo("Featureplacer: No features loaded")
 end
 
 
@@ -67,13 +69,17 @@ if ( featurecfg ) then
 	if ( buildinglist ) then
 		local los_status = {los=true, prevLos=true, contRadar=true, radar=true}
 		for i,bDef in pairs(buildinglist) do
-			local flagID = CreateUnit(bDef.name, bDef.x, 0, bDef.z, bDef.rot, gaiaID)
+		
+			local def = bDef
+			if type(def.name) == "string" then
+			local flagID = CreateUnit(def.name, def.x, 0, def.z, def.rot, gaiaID)
 			SetUnitNeutral(flagID,true)
 			Spring.SetUnitLosState(flagID,0,los_status)
 			SetUnitAlwaysVisible(flagID,true)
 			SetUnitBlocking(flagID,true)
+			end
 		end
 	end
 end
 
-return false --unload
+ return false --unload
