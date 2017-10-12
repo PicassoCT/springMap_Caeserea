@@ -43,7 +43,10 @@ else
 	Spring.Echo("Featureplacer: missing file")
 	Spring.Echo("Featureplacer: No features loaded")
 end
-
+convertDegToRot = function (degVal)
+vx,vz =math.cos(math.rad(degVal)%math.pi),math.sin(math.rad(degVal)%math.pi)
+return Spring.GetHeadingFromVector(vx,vz)..""
+end
 
 if ( featurecfg ) then
 	local gaiaID = Spring.GetGaiaTeamID()
@@ -57,29 +60,18 @@ if ( featurecfg ) then
 	if ( buildinglist ) then
 		local los_status = {los=true, prevLos=true, contRadar=true, radar=true}
 		for i,uDef in pairs(unitlist) do
-			local flagID = CreateUnit(uDef.name, uDef.x, 0, uDef.z, 0, gaiaID)
-			SetUnitRotation(flagID, 0, -uDef.rot * math.pi / 32768, 0)
-			SetUnitNeutral(flagID,true)
+			local flagID = CreateUnit(uDef.name, uDef.x, 0, uDef.z, 1, gaiaID)
+
+			rotVal= ( convertDegToRot(uDef.rot) * -math.pi) / 32768,
+			Spring.SetUnitRotation(flagID, 0, rotVal, 0)
+			Spring.SetUnitNeutral(flagID,true)
 			Spring.SetUnitLosState(flagID,0,los_status)
 			SetUnitAlwaysVisible(flagID,true)
 			SetUnitBlocking(flagID,true)
 		end
 	end
 
-	if ( buildinglist ) then
-		local los_status = {los=true, prevLos=true, contRadar=true, radar=true}
-		for i,bDef in pairs(buildinglist) do
-		
-			local def = bDef
-			if type(def.name) == "string" then
-			local flagID = CreateUnit(def.name, def.x, 0, def.z, def.rot, gaiaID)
-			SetUnitNeutral(flagID,true)
-			Spring.SetUnitLosState(flagID,0,los_status)
-			SetUnitAlwaysVisible(flagID,true)
-			SetUnitBlocking(flagID,true)
-			end
-		end
-	end
+
 end
 
  return false --unload

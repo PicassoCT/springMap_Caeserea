@@ -111,75 +111,74 @@ local mapinfo = {
 		texMults  = {2.14159, 1.414, 1.9141, 0.91},
 	},
 
-	atmosphere = {
-		minWind      = 5.0,
-		maxWind      = 25.0,
+atmosphere = {
 
-		fogStart     = 0.1,
+		minWind      = 2,
+		maxWind      = 30,
+
+		fogStart     = 0.9,
 		fogEnd       = 1.0,
-		fogColor     = {0.7, 0.7, 0.8},
+		fogColor     = {0.0, 0.0, 0.0},
 
-		sunColor     = {1.0, 1.0, 1.0},
-		skyColor     = {0.1, 0.15, 0.7},
+		sunColor     = {1.0, 0.5, 0.4},
+		skycolor     = {0.9, 0.1, 0.0},
 		skyDir       = {0.0, 0.0, -1.0},
-		skyBox       = "",
+		skyBox       = "yellowclouds.dds",
 
-		cloudDensity = 0.5,
-		cloudColor   = {1.0, 1.0, 1.0},
+		cloudDensity = 0.65,
+		cloudColor   = {0.1, 0.1, 1},
 	},
 
 	grass = {
-		bladeWaveScale = 1.0,
-		bladeWidth  = 0.32,
-		bladeHeight = 4.0,
+		bladeWaveScale = 3.0,
+		bladeWidth  = 0.4,
+		bladeHeight = 4.3,
 		bladeAngle  = 1.57,
-		bladeColor  = {0.59, 0.81, 0.57}, --// does nothing when `grassBladeTex` is set
+		bladeColor  = {0.26, 0.46, 0.03}, --// does nothing when `grassBladeTex` is set
 	},
 
 	lighting = {
 		--// dynsun
 		sunStartAngle = 0.0,
 		sunOrbitTime  = 1440.0,
-		sunDir        = {0.0, 1.0, 2.0, 1e9},
+		sundir        = { -0.5, 0.5, 0.5 },
 
 		--// unit & ground lighting
-		groundAmbientColor  = {0.5, 0.5, 0.5},
-		groundDiffuseColor  = {0.5, 0.5, 0.5},
-		groundSpecularColor = {0.1, 0.1, 0.1},
-		groundShadowDensity = 0.8,
-		unitAmbientColor    = {0.4, 0.4, 0.4},
-		unitDiffuseColor    = {0.7, 0.7, 0.7},
-		unitSpecularColor   = {0.7, 0.7, 0.7},
-		unitShadowDensity   = 0.8,
-		
+         groundambientcolor            = { 0.94, 0.64, 0.74 },
+         grounddiffusecolor            = { 1.0, 0.75, 0.8 },
+         groundshadowdensity           = 0.95,
+         unitambientcolor           = { 0.85, 0.55, 0.65 },
+         unitdiffusecolor           = { 1.0, 0.75, 0.8 },
+         unitshadowdensity          = 0.95,
+		 specularsuncolor           = { 1.0, 0.65, 0.75 },
+		 
 		specularExponent    = 100.0,
 	},
 	
 	water = {
-		damage =  0.0,
+		damage =  0,
 
 		repeatX = 0.0,
 		repeatY = 0.0,
 
-		absorb    = {0.0, 0.0, 0.0},
-		baseColor = {0.0, 0.0, 0.0},
-		minColor  = {0.0, 0.0, 0.0},
+		absorb    = { 0.012, 0.006, 0.0045 },
+		basecolor = { 0.70, 0.9, 1.0 },
+		mincolor  = { 0.02, 0.45, 0.65 },
 
-		ambientFactor  = 1.0,
+		ambientFactor  = 1.3,
 		diffuseFactor  = 1.0,
-		specularFactor = 1.0,
-		specularPower  = 20.0,
+		specularFactor = 1.4,
+		specularPower  = 40.0,
 
-		planeColor = {0.0, 0.4, 0.0},
-
-		surfaceColor  = {0.75, 0.8, 0.85},
-		surfaceAlpha  = 0.55,
-		diffuseColor  = {1.0, 1.0, 1.0},
+		surfacecolor  = { 0.6, 0.54, 0.86 },
+		surfaceAlpha  = 0.16,
+		--diffuseColor  = {0.0, 0.0, 0.0},
 		specularColor = {0.5, 0.5, 0.5},
+		--planeColor = {0.0, 0.0, 0.0},
 
-		fresnelMin   = 0.2,
+		fresnelMin   = 0.3,
 		fresnelMax   = 0.8,
-		fresnelPower = 4.0,
+		fresnelPower = 8.0,
 
 		reflectionDistortion = 1.0,
 
@@ -193,6 +192,8 @@ local mapinfo = {
 
 		shoreWaves = true,
 		forceRendering = false,
+		
+		hasWaterPlane = false,
 
 		--// undefined == load them from resources.lua!
 		--texture =       "",
