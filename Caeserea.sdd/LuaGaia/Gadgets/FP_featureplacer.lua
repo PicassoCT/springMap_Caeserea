@@ -10,8 +10,6 @@ function gadget:GetInfo()
 	}
 end
 
-
-
 if (not gadgetHandler:IsSyncedCode()) then
 	return false
 end
@@ -26,10 +24,7 @@ local SetUnitRotation = Spring.SetUnitRotation
 local SetUnitAlwaysVisible = Spring.SetUnitAlwaysVisible
 local CreateUnit = Spring.CreateUnit
 local CreateFeature = Spring.CreateFeature
-
 local featurecfg = {}
-
-Spring.Echo("Got this far"..-1)
 
 if VFS.FileExists("mapconfig/featureplacer/config.lua") then
 	featurecfg = VFS.Include("mapconfig/featureplacer/config.lua")
@@ -37,31 +32,24 @@ if VFS.FileExists("mapconfig/featureplacer/config.lua") then
 	featureslist = featurecfg.objectlist
 	buildinglist = featurecfg.buildinglist
 	unitlist = featurecfg.unitlist
-	Spring.Echo("Got this far"..0)
 else
 	Spring.Echo("Featureplacer: missing file")
 	Spring.Echo("Featureplacer: No features loaded")
 end
 
-
-
 if ( featurecfg ) then
-	Spring.Echo("Got this far"..1)
 	local rotationMultiplier = math.pi / 32768
 	local gaiaTeamID = Spring.GetGaiaTeamID()
 	local featureSetFile = "mapconfig/featureplacer/config.lua"
 	local losState = {los=true, prevLos=true, contRadar=true, radar=true}
-	Spring.Echo("Got this far"..1.1)
 	
 	if ( featurecfg.featureslist ) then
 		for i,fDef in pairs(featureslist) do
 			local flagID = CreateFeature(fDef.name, fDef.x, Spring.GetGroundHeight(fDef.x,fDef.z)+5, fDef.z, fDef.rot)
 		end
 	end
-	Spring.Echo("Got this far"..1.2)
 	if ( featurecfg.buildinglist ) then
 		
-		Spring.Echo("Got this far"..2)
 		pseudoRandomValues= {0.01,0.57,0.2,0.81,0.59,0.48,0.36,0.9,0.83,0.75,0.18,0.86,0.72,0.52,0.31,0.02,0.1,0.37,0.15,0.17,0.99,0.45,0.12,0.01,0.01,0.38,0.54,0.58,0.61,0.61,0.17,0.67,0.46,0.36,0.06,0.61,0.79,0.81,0.52,0.31,0.88,0.73,0.96,0.93,0.54,0.15,0.47,0.24,0.87,0.21,0.78,0.85,1,1,0.62,0.4,0.27,0.3,0.85,0.03,0.38,0.1,0.68,0.06,0.01,0.92,0.28,0.28,0.59,0.7,0.84,0.73,0.49,0.21,0.75,0.47,0.46,0.95,0.75,0.11,0.6,0.39,0.74,0.61,0.58,0.37,0.16,0.23,0.43,0.81,0.52,0.99,0.76,0.35,0.17,0.66,0.5,0.07,0.7,0.51}
 		pseudoIndex=1
 		
@@ -87,17 +75,12 @@ if ( featurecfg ) then
 			result = (((180 - absolut(result % 360))/180)*32767)..""
 			return result
 		end
-		Spring.Echo("Got this far"..3)
 	
 		  for _,uDef in pairs(featurecfg.buildinglist) do
 
-			Spring.Echo("Got this far"..3.1)
 			local flagID = CreateUnit(uDef.name, uDef.x, 0, uDef.z, 0, gaiaTeamID)
-			Spring.Echo("Got this far"..3.2)
 			local rotation = uDef.rot or "0"
-			Spring.Echo("Got this far"..3.3)
 			if not uDef.rot then rotation = randomStringifyHeading(uDef.rotLow, uDef.rotUp) end
-			Spring.Echo("Got this far"..4)
 			local unitRotation = -rotation * rotationMultiplier
 			Spring.SetUnitRotation(flagID, 0, unitRotation, 0)
 			Spring.SetUnitNeutral(flagID,true)
@@ -109,5 +92,4 @@ if ( featurecfg ) then
 	
 	return true
 end
-
 return false --unload

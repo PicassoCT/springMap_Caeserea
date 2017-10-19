@@ -593,7 +593,8 @@ local setcfg = {
 			z = 2307,
 			rotLow =1, 
 			rotUp= 360 
-			}, { name="caesarolive",
+			}, 
+			{ name="caesarolive",
 			x = 2845,
 			z = 3023,
 			rotLow =1, 
@@ -602,6 +603,52 @@ local setcfg = {
 		{ name="caesarpine",
 			x = 592,
 			z = 798,
+			rotLow =1, 
+			rotUp= 360 
+			}, 
+			{ name="caesarpine",
+			x = 2450,
+			z = 1707,
+			rotLow =1, 
+			rotUp= 360 
+		},		
+		{ name="caesarpine",
+			x = 2140,
+			z = 3000,
+			rotLow =1, 
+			rotUp= 360 
+			},
+			{ name="caesarpine",
+			x = 2450,
+			z = 1707,
+			rotLow =1, 
+			rotUp= 360 
+			},				
+			{ name="caesarpine",
+			x = 2011,
+			z = 2605,
+			rotLow =1, 
+			rotUp= 360 
+			}, { name="caesarpine",
+			x = 2450,
+			z = 1707,
+			rotLow =1, 
+			rotUp= 360 
+			},			
+			{ name="caesarpine",
+			x = 1882,
+			z = 2775,
+			rotLow =1, 
+			rotUp= 360 
+			}, { name="caesarpine",
+			x = 2450,
+			z = 1707,
+			rotLow =1, 
+			rotUp= 360 
+		},		
+		{ name="caesarpine",
+			x = 2186,
+			z = 2777,
 			rotLow =1, 
 			rotUp= 360 
 			}, { name="caesarpine",
