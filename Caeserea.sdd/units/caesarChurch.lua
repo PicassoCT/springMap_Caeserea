@@ -1,10 +1,10 @@
 local unitName = "caesarchurch"
 
 	local unitDef = {
-	name = "church",
-	Description = "",
+	name = "Church",
+	Description = "holy Ground",
 	objectName = "caesarChurch.s3o",
-	script = "empty.lua",
+	script = "caesareaChurch.lua",
 	buildPic = "placeholder.png",
 	levelGround =false,
 	--cost

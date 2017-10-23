@@ -15,31 +15,31 @@ local setcfg = {
 			x = 165,
 			z = 4039,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 314,
 			z = 3619,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 396,
 			z = 3084,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 1357,
 			z = 3346,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 792,
 			z = 3014,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarolive",
 			x = 1639,
@@ -58,25 +58,25 @@ local setcfg = {
 			x = 2914,
 			z = 3333,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 3674,
 			z = 3021,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 3823,
 			z = 3651,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesarflag",
 			x = 4016,
 			z = 3878,
 			rotLow =1, 
-			rotUp= 360 
+			rotUp= 2 
 		},
 		{ name="caesararena",
 			x = 2100,
@@ -259,26 +259,26 @@ local setcfg = {
 			rotUp= 360 
 		},
 		{ name="caesarolive",
-			x = 9,
-			z = 12,
+			x = 570,
+			z = 101,
 			rotLow =1, 
 			rotUp= 360 
 		},
 		{ name="caesarolive",
-			x = 4080,
+			x = 3697,
 			z = 25,
 			rotLow =1, 
 			rotUp= 360 
 		},
 		{ name="caesarolive",
-			x = 4071,
+			x = 3779,
 			z = 1274,
 			rotLow =1, 
 			rotUp= 360 
 		},
 		{ name="caesarolive",
-			x = 7,
-			z = 1457,
+			x = 284,
+			z = 1707,
 			rotLow =1, 
 			rotUp= 360 
 		},

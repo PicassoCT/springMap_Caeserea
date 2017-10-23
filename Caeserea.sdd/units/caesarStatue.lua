@@ -1,7 +1,7 @@
 local unitName = "caesarStatue"
 
 	local unitDef = {
-	name = "Pinetree",
+	name = "Non War Memorial",
 	Description = "Peace by Perfectionism - General Licho inspects the Steam offensive",
 	objectName = "caesarStatue.s3o",
 	script = "caesarStatue.lua",

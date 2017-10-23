@@ -2,7 +2,7 @@ local unitName = "caesarjudgepillar"
 
 	local unitDef = {
 	name = "Pillars",
-	Description = " ancient ",
+	Description = " judging those who walk between ",
 	objectName = "caesarJudgePillar.s3o",
 	script = "empty.lua",
 	buildPic = "placeholder.png",

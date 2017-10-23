@@ -77,8 +77,8 @@ if ( featurecfg ) then
 		end
 	
 		  for _,uDef in pairs(featurecfg.buildinglist) do
-
-			local flagID = CreateUnit(uDef.name, uDef.x, 0, uDef.z, 0, gaiaTeamID)
+			heigth= Spring.GetGroundHeight(uDef.x,uDef.z)
+			local flagID = CreateUnit(uDef.name, uDef.x, heigth, uDef.z, 0, gaiaTeamID)
 			local rotation = uDef.rot or "0"
 			if not uDef.rot then rotation = randomStringifyHeading(uDef.rotLow, uDef.rotUp) end
 			local unitRotation = -rotation * rotationMultiplier

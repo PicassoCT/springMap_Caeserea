@@ -1,8 +1,8 @@
 local unitName = "caesarhouse"
 
 	local unitDef = {
-	name = "flag",
-	Description = "abandoned animal farm",
+	name = "House",
+	Description = " of the great family of ..",
 	objectName = "caesarHouse.s3o",
 	script = "caesareaHouse.lua",
 	buildPic = "placeholder.png",

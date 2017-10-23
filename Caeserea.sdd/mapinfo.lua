@@ -8,7 +8,7 @@ local mapinfo = {
 	shortname   = "Caeserea",
 	description = "a city by the desert",
 	author      = "PicassoCT",
-	version     = "v1",
+	version     = "v2",
 	--mutator   = "deployment";
 	--mapfile   = "", --// location of smf/sm3 file (optional)
 	modtype     = 3, --// 1=primary, 0=hidden, 3=map
@@ -29,8 +29,8 @@ local mapinfo = {
 
 
 	smf = {
-		minheight = 589,
-		maxheight = 1152,
+		minheight = -275,--589 -- -260
+		maxheight = 273,--1152
 		--smtFileName0 = "",
 		--smtFileName1 = "",
 		--smtFileName.. = "",
@@ -107,7 +107,8 @@ local mapinfo = {
 	},
 
 	splats = {
-		texScales = {0.02, 0.006125, 0.003125, 0.006125},
+	--	texScales = {0.02, 0.006125, 0.003125, 0.006125},
+		texScales = {0.01, 0.006125, 0.003125, 0.006125},
 		texMults  = {2.14159, 1.414, 1.9141, 0.91},
 	},
 

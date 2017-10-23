@@ -1,8 +1,8 @@
 local unitName = "caesarolive"
 
 	local unitDef = {
-	name = "olivetree",
-	Description = "",
+	name = "Olivetree",
+	Description = " 821 years old",
 	objectName = "caesarOlive.s3o",
 	script = "caesereaOlives.lua",
 	buildPic = "placeholder.png",

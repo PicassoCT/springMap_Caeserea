@@ -1,8 +1,8 @@
 local unitName = "caesararena"
 
 	local unitDef = {
-	name = "Arena",
-	Description = "",
+	name = "Great arena",
+	Description = " ruins fighting to be or not to be",
 	objectName = "caesarArena.s3o",
 	script = "empty.lua",
 	buildPic = "placeholder.png",

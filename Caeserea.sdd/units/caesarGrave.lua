@@ -2,7 +2,7 @@ local unitName = "caesargrave"
 
 	local unitDef = {
 	name = "grave",
-	Description = "",
+	Description = "here rests - beloved dear, Your name could be here",
 	objectName = "caesarGravestone.s3o",
 	script = "empty.lua",
 	buildPic = "placeholder.png",

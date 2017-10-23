@@ -6,7 +6,12 @@ include "lib_caeserea.lua"
 center= piece"center"
 TablesOfPiecesGroups = {}
 function script.Create()
-	TablesOfPiecesGroups = makePiecesTablesByNameGroups(false, true)
+	StartThread(delayedTurn)
+end
+
+function delayedTurn()
+Sleep(1)
+TablesOfPiecesGroups = makePiecesTablesByNameGroups(false, true)
 	local degValue=0
 	dice = math.random(0,2) 
 	hideT(	TablesOfPiecesGroups["root"])
