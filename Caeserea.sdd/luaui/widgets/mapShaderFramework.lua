@@ -47,9 +47,6 @@ end
 --Loads a list of files from a given Directory - returns the full filepath
 function getDirectoryContentList(Path)
 	fileList = VFS.DirList(Path)
-	for i=1,#fileList do
-		fileList[i]= Path.."/"..fileList[i]
-	end
 	return fileList
 end
 
@@ -89,10 +86,22 @@ function foundMainStartCompleted(line)
 	return boolMainStarted,boolMainStartCompleted, line
 end
 
+function split(inputstr, sep)
+        if sep == nil then
+                sep = "%s"
+        end
+        local t={} ; i=1
+        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+                t[i] = str
+                i = i + 1
+        end
+        return t
+end
 
 function loadFile(filePathAndName)
 	
-	result= VFS.LoadFile(filePathAndName)
+	resultRaw= VFS.LoadFile(filePathAndName)
+	local result = split(resultRaw,"\n")
 	if not result then 
 		Spring.Echo("MapShaderFramework:: File not loaded "..filePathAndName)
 	else
@@ -102,77 +111,24 @@ function loadFile(filePathAndName)
 end
 
 patternsToIgnore = {
-	"", --empty Strings
+	--"", --empty Strings
 }
 function ignoreLine(line)
 	for i=1,#patternsToIgnore do
-		if ine:gmatch(linesToIgnore[i]) then return true end
-		
+		if line:gmatch(patternsToIgnore[i]) then return true end		
 	end
 	return false
 end
 
-Stack = {}
-
--- Create a Table with stack functions
-function Stack:Create()
-	
-	-- stack table
-	local t = {}
-	-- entry table
-	t._et = {}
-	
-	-- push a value on to the stack
-	function t:push(...)
-		if ... then
-			local targs = {...}
-			-- add values
-			for _,v in ipairs(targs) do
-				table.insert(self._et, v)
-			end
-		end
-	end
-	-- get entries
-	function t:getn()
-		return #self._et
-	end
-	
-	-- pop a value from the stack
-	function t:pop(num)
+parenthesisStack = {
+					openBraces=0, 
+					getn=function() return parenthesisStack.openBraces; end,
+					pop= function() parenthesisStack.openBraces = parenthesisStack.openBraces-1; end,
+					push= function()parenthesisStack.openBraces =parenthesisStack.openBraces +1; end
+		}	
 		
-		-- get num values from stack
-		local num = num or 1
-		
-		-- return table
-		local entries = {}
-		
-		-- get values into entries
-		for i = 1, num do
-			-- get last entry
-			if #self._et ~= 0 then
-				table.insert(entries, self._et[#self._et])
-				-- remove last value
-				table.remove(self._et)
-			else
-				break
-			end
-		end
-		-- return unpacked entries
-		return unpack(entries)
-	end
-	
-	
-	-- list values
-	function t:list()
-		for i,v in pairs(self._et) do
-			print(i, v)
-		end
-	end
-	return t
-end
-
 -- update the parenthesis stack
-function parentThesis(line, parenthesisStack)
+function parentThesis(line)
 	for i = 1, #line do
 		local c = line:sub(i,i)
 		if parenthesisStack.getn()==0 then return parenthesisStack end
@@ -191,7 +147,7 @@ end
 
 
 
---extracts the Context, the Uniforms
+--extracts the Context
 function extractContextMain(listOfFiles)
 	concatContext, concatMain = "", ""
 	boolMainStarted = false
@@ -201,19 +157,21 @@ function extractContextMain(listOfFiles)
 	
 	
 	for num, fileName in pairs (listOfFiles) do
-		file = loadFile(fileName)
-		parenthesisStack = Stack:Create()
+		local file = loadFile(fileName)	
 		
-		concatContext= concatContext.. "/* "..fileName.." Context */\n"
-		for line in file:lines() do
+		concatContext= concatContext.. "// "..fileName.." Context \n"
+		for i=1, #file do
+		local line = file[i]	
+	--	Spring.Echo(line)
 			if ignoreLine(line) == false then
 				
 				boolMainStarted, boolMainStartCompleted,line = foundMainStartCompleted(line)
 				if boolMainStarted == false or parenthesisStack.getn()== 0 then
-					concatContext= concatContext.."\n"
+					concatContext= concatContext..line.."\n"
 				end
 				
 				if boolMainStarted == true and boolMainStartCompleted== true then
+				concatMain= concatMain.. "// "..fileName.." Main \n"
 					parenthesisStack.push(true)
 				end	
 				
@@ -237,12 +195,14 @@ function sortByNumberInName( listOfFiles, fileEnding)
 	local retTable={}
 	index=1
 	for _,name in pairs(listOfFiles) do
+		Spring.Echo(name)
 		_,start= string.find(name,"_")
 		strend,_= string.find(name,fileEnding)
 		number= trim(string.gsub(string.sub(name,start+1,strend),"_",""))
-		index = tonumber(number)
-		retTable[index]=name
-		
+		if not number then echo("MapShaderFramework:: No number in filename :"..name);  end
+		if number then	
+			retTable[number]=name
+		end
 	end
 	return retTable
 end
@@ -250,9 +210,9 @@ end
 
 function loadUniform(shaderT)
 	-- load the uniform sourcecode fromt he uniformfolder
-	file = VFS.LoadFile(getUniformDirectory())
+	file = VFS.LoadFile(getUniformDirectory().."/Uniform.txt")
 	if not file then Spring.Echo("No Uniform Sourcefile found at "..getUniformDirectory()); return shaderT end
-	uniformFunction = loadstring(uniformCode)
+	uniformFunction = loadstring(file)
 	uniformTables= uniformFunction()
 	
 	for key, value in pairs(uniformTables) do
@@ -276,8 +236,8 @@ function loadMapShader()
 	vertexAggregatedContext, vertexAggregatedMain = extractContextMain(listOfVertexFiles)
 	fragmentAggregatedContext, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
 	
-	shader.fragment = fragmentAggregatedContext.. "\n main() { \n"..fragmentAggregatedMain.."\n }"
-	shader.vertex = vertexAggregatedContext.. "\n main() { \n"..vertexAggregatedMain.."\n }"
+	shader.fragment = fragmentAggregatedContext.. "\n main(void) { \n"..fragmentAggregatedMain.."\n }"
+	shader.vertex = vertexAggregatedContext.. "\n main(void) { \n"..vertexAggregatedMain.."\n }"
 	
 	shader = loadUniform(shader)
 	

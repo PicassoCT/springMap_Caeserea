@@ -1,9 +1,84 @@
 ----------------------------------------------------------
 -- AutoCreated by FeaturePlacer (by smoth)
-
+orchardCoordPairs={
+					{3015,141},
+					{2952,285},
+					{3487,326},
+					{3181,414},
+					{3309,392},
+					{3434,522},
+					{3561,483},
+					{3666,414},
+					{3281,585},
+					{3343,130}
+					}
+					
 local setcfg = {
 	buildinglist = {
 		
+		{ name="caesarwaypost",
+			x = 496,
+			z = 418,
+			rotLow = 240,
+			rotUp = 245
+			
+		},		
+		{ name="caesarcloth",
+			x = 2159,
+			z = 1955,
+			rotLow = -60,
+			rotUp = -55
+			
+		},		
+		{ name="caesarcloth",
+			x = 2323,
+			z = 2171,
+			rotLow = -60,
+			rotUp = -55
+			
+		},	
+		{ name="caesarcloth",
+			x = 1924,
+			z = 1763,
+			rotLow = -35,
+			rotUp = -10
+			
+		},	
+		{ name="caesarcloth",
+			x = 2108,
+			z = 2293,
+			rotLow = -25,
+			rotUp = -5
+			
+		},		
+		{ name="caesarcloth",
+			x = 2113,
+			z = 2286,
+			rotLow = -15,
+			rotUp = -5
+			
+		},			
+		{ name="caesarcloth",
+			x = 2105,
+			z = 2308,
+			rotLow = -5,
+			rotUp = 0
+			
+		},		
+		{ name="caesarcloth",
+			x = 2124,
+			z = 1773,
+			rotLow = 5,
+			rotUp = 25
+			
+		},		
+		{ name="caesarcloth",
+			x = 1908,
+			z = 2221,
+			rotLow = 45,
+			rotUp = 55
+			
+		},		
 		{ name="caesarstatue",
 			x = 2112,
 			z = 2036,
@@ -593,8 +668,8 @@ local setcfg = {
 			z = 2307,
 			rotLow =1, 
 			rotUp= 360 
-			}, 
-			{ name="caesarolive",
+		}, 
+		{ name="caesarolive",
 			x = 2845,
 			z = 3023,
 			rotLow =1, 
@@ -605,8 +680,8 @@ local setcfg = {
 			z = 798,
 			rotLow =1, 
 			rotUp= 360 
-			}, 
-			{ name="caesarpine",
+		}, 
+		{ name="caesarpine",
 			x = 2450,
 			z = 1707,
 			rotLow =1, 
@@ -617,14 +692,14 @@ local setcfg = {
 			z = 3000,
 			rotLow =1, 
 			rotUp= 360 
-			},
-			{ name="caesarpine",
+		},
+		{ name="caesarpine",
 			x = 2450,
 			z = 1707,
 			rotLow =1, 
 			rotUp= 360 
-			},				
-			{ name="caesarpine",
+		},				
+		{ name="caesarpine",
 			x = 2011,
 			z = 2605,
 			rotLow =1, 
@@ -634,8 +709,8 @@ local setcfg = {
 			z = 1707,
 			rotLow =1, 
 			rotUp= 360 
-			},			
-			{ name="caesarpine",
+		},			
+		{ name="caesarpine",
 			x = 1882,
 			z = 2775,
 			rotLow =1, 
@@ -668,6 +743,15 @@ local setcfg = {
 	},
 }
 
+for i=1,#orchardCoordPairs do
+setcfg.buildinglist[#setcfg.buildinglist+1] ={
+			name="caesarorchard",
+			x = orchardCoordPairs[i][1],
+			z = orchardCoordPairs[i][2],
+			rotLow = 0,
+			rotUp = 360			
+		}		
+end
 
 
 
