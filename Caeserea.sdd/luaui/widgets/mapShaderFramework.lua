@@ -37,7 +37,7 @@ function getUniformDirectory()
 	
 end
 function getFragmentDirectory()
-	return RootDIR.."/".. FragmenDIR
+	return RootDIR.."/".. FragmentDIR
 end
 
 function getVertexDirectory()
@@ -50,6 +50,21 @@ function getDirectoryContentList(Path)
 	return fileList
 end
 
+function reset()
+	matchCounter=1
+	boolReMainderCut= false
+	boolMainStartCompleted= false
+	boolPreAmbleOnce = false
+	boolMainEnded = false
+	
+	mainParenthesisStack = {
+		openBraces=0, 
+		getn=function() return mainParenthesisStack.openBraces; end,
+		pop= function() mainParenthesisStack.openBraces = mainParenthesisStack.openBraces-1; end,
+		push= function()mainParenthesisStack.openBraces =mainParenthesisStack.openBraces +1; end
+	}	
+end
+
 matchCounter=1
 boolReMainderCut= false
 --TODO Find a waterproof main detector
@@ -60,42 +75,44 @@ function foundMainStartCompleted(line)
 		[1] = "void",
 		[2] = "main",
 		[3] = "%(",
-		[4] = "%)",
-		[5] = "{"
+		[4] = "void",
+		[5] = "%)",
+		[6] = "{"
 	}
 	
 	start,ends=0,0
 	for i= matchCounter,#stringComponents do
-		print(line,stringComponents[i])
 		start, ends =string.find(line, stringComponents[i],index)
+		if i== 5 then 		mainParenthesisStack.push() end
+		
 		if start then
-			index = ends+1
-			matchCounter=matchCounter +1
+			index = ends + 1
+			matchCounter=matchCounter + 1
 		else 
 			break
 		end
 	end
-	boolMainStarted = matchCounter > 1
-	boolMainStartCompleted = matchCounter == #stringComponents +1 
+	boolMainStarted = matchCounter > 1 
+	boolMainStartCompleted = matchCounter == #stringComponents  +1
 	
 	if boolMainStartCompleted == true and boolReMainderCut == false then 
 		boolReMainderCut= true
 		line = string.sub(line, ends+1,#line)
 	end
 	
-	return boolMainStarted,boolMainStartCompleted, line
+	return boolMainStarted,boolMainStartCompleted,boolMainEnded, line
 end
 
 function split(inputstr, sep)
-        if sep == nil then
-                sep = "%s"
-        end
-        local t={} ; i=1
-        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-                t[i] = str
-                i = i + 1
-        end
-        return t
+	if sep == nil then
+		sep = "%s"
+	end
+	local t={} ; i=1
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		t[i] = str
+		i = i + 1
+	end
+	return t
 end
 
 function loadFile(filePathAndName)
@@ -120,71 +137,72 @@ function ignoreLine(line)
 	return false
 end
 
-parenthesisStack = {
-					openBraces=0, 
-					getn=function() return parenthesisStack.openBraces; end,
-					pop= function() parenthesisStack.openBraces = parenthesisStack.openBraces-1; end,
-					push= function()parenthesisStack.openBraces =parenthesisStack.openBraces +1; end
-		}	
-		
+mainParenthesisStack = {
+	openBraces=0, 
+	getn=function() return mainParenthesisStack.openBraces; end,
+	pop= function() mainParenthesisStack.openBraces = mainParenthesisStack.openBraces-1; end,
+	push= function()mainParenthesisStack.openBraces =mainParenthesisStack.openBraces +1; end
+}	
+
 -- update the parenthesis stack
-function parentThesis(line)
+function mainBraceManagement(line, boolMainStartCompleted)
 	for i = 1, #line do
 		local c = line:sub(i,i)
-		if parenthesisStack.getn()==0 then return parenthesisStack end
-		if c == "{" then parenthesisStack.push(true) end
-		if c == "}" then parenthesisStack.pop() end
+		if c == "{" then mainParenthesisStack.push() end
+		if c == "}" then mainParenthesisStack.pop() end
+		
+		if boolMainStartCompleted == true and boolMainEnded == false and mainParenthesisStack.getn()==0 then
+			boolMainEnded = true
+			return "" -- string.sub(line,i+1,#line)		
+		end		
 	end
-	return parenthesisStack
+	return line
 end
-
-
-
 
 function trim(s)
 	return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
-
+boolMainStartCompleted= false
+boolPreAmbleOnce = false
+boolMainEnded = false
 
 --extracts the Context
 function extractContextMain(listOfFiles)
 	concatContext, concatMain = "", ""
 	boolMainStarted = false
-	boolMainStartCompleted= false
-	
-	
 	
 	
 	for num, fileName in pairs (listOfFiles) do
-		local file = loadFile(fileName)	
+		local file = loadFile(fileName)
 		
-		concatContext= concatContext.. "// "..fileName.." Context \n"
+		
+		
 		for i=1, #file do
-		local line = file[i]	
-	--	Spring.Echo(line)
+			line = file[i]	
+
 			if ignoreLine(line) == false then
 				
-				boolMainStarted, boolMainStartCompleted,line = foundMainStartCompleted(line)
-				if boolMainStarted == false or parenthesisStack.getn()== 0 then
-					concatContext= concatContext..line.."\n"
+				boolMainStarted, boolMainStartCompleted, boolMainEnded,line = foundMainStartCompleted(line)
+				line= mainBraceManagement(line, boolMainStartCompleted)
+				if (boolMainStarted== false or boolMainStartCompleted == false) or boolMainEnded == true then
+					concatContext= concatContext..line
 				end
 				
-				if boolMainStarted == true and boolMainStartCompleted== true then
-				concatMain= concatMain.. "// "..fileName.." Main \n"
-					parenthesisStack.push(true)
-				end	
+				if boolMainStartCompleted== true and boolPreAmbleOnce == false then
+					boolPreAmbleOnce=true
+					concatMain= concatMain.. "// Main::"..fileName.." \n"
+				end					
 				
-				
-				if boolMainStartCompleted == true and parenthesisStack.getn() > 0 then
-					parenthesisStack= parentThesis(line,parenthesisStack)
-					if parenthesisStack.getn() > 0 then
+				if boolMainStartCompleted == true and mainParenthesisStack.getn() > 0 then
+					if mainParenthesisStack.getn() > 0 then
 						concatMain = concatMain..line
 					end
 				end
 				
 			end
 		end
+		reset()
 	end
 	
 	
@@ -199,7 +217,7 @@ function sortByNumberInName( listOfFiles, fileEnding)
 		_,start= string.find(name,"_")
 		strend,_= string.find(name,fileEnding)
 		number= trim(string.gsub(string.sub(name,start+1,strend),"_",""))
-		if not number then echo("MapShaderFramework:: No number in filename :"..name);  end
+		if not number then echo("MapShaderFramework:: No number in filename :"..name); end
 		if number then	
 			retTable[number]=name
 		end
@@ -227,7 +245,7 @@ function loadMapShader()
 	
 	listOfVertexFiles	= getDirectoryContentList(getVertexDirectory())
 	if not listOfVertexFiles then echo("MapShaderFramework::No Vertex Files found"); return end
-	listOfFragmentFiles	= getDirectoryContentList(getVertexDirectory())
+	listOfFragmentFiles	= getDirectoryContentList(getFragmentDirectory())
 	if not listOfFragmentFiles then echo("MapShaderFramework::No Fragment Files found"); return end
 	
 	listOfVertexFiles = sortByNumberInName( listOfVertexFiles, FileEndingVertex)
@@ -236,8 +254,8 @@ function loadMapShader()
 	vertexAggregatedContext, vertexAggregatedMain = extractContextMain(listOfVertexFiles)
 	fragmentAggregatedContext, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
 	
-	shader.fragment = fragmentAggregatedContext.. "\n main(void) { \n"..fragmentAggregatedMain.."\n }"
-	shader.vertex = vertexAggregatedContext.. "\n main(void) { \n"..vertexAggregatedMain.."\n }"
+	shader.fragment = fragmentAggregatedContext.. "\n void main(void) { \n"..fragmentAggregatedMain.."\n }"
+	shader.vertex = vertexAggregatedContext.. "\n void main(void) { \n"..vertexAggregatedMain.."\n }"
 	
 	shader = loadUniform(shader)
 	
@@ -246,8 +264,12 @@ function loadMapShader()
 	local errors = gl.GetShaderLog(shader)
 	if errors ~= "" or not compiledMapShader then
 		Spring.Log("MapShaderFramework::Error:", LOG.ERROR, errors)
+		Spring.Echo("===================================Fragment Source=================================")
 		Spring.Echo(shader.fragment)
+		Spring.Echo("===================================Vertex Source ==================================")
 		Spring.Echo(shader.vertex)
+		Spring.Echo("===================================================================================")
+		
 	end
 	Spring.SetMapShader(compiledMapShader, 0)
 end
