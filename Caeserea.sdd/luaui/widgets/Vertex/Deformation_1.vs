@@ -1,17 +1,16 @@
-#define SMF_TEXSQR_SIZE 1024.0
+
 
         uniform ivec2 texSquare;
         varying vec2 texCoors;
 
         varying vec4 colorChange;
-		varying vec4 vertexWorldPos;
 
         uniform float time;
-        uniform float points[MAX_POINTS];
+        uniform float points[30];
         uniform int pointSize;
 
         void main(void) {
-            texCoors = (floor(gl_Vertex.xz) / SMF_TEXSQR_SIZE) - vec2(texSquare);
+            texCoors = (floor(gl_Vertex.xz) / 1024.0)- vec2(texSquare);
 
             vec4 pos = gl_Vertex;
             colorChange = vec4(0, 0, 0, 1);
@@ -27,5 +26,4 @@
                 colorChange += vec4(sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff) / 1000;
             }
             gl_Position = gl_ModelViewProjectionMatrix * pos;
-			vertexWorldPos = gl_Vertex;
         }

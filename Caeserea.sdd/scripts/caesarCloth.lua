@@ -27,7 +27,7 @@ Sleep(1)
 	
 	selectedT= {}
 	selectedT[1],selectedT[2],selectedT[3]=Spring.GetUnitPosition(unitID)
-	selectedT[4] = 0
+	selectedT[4] = math.random(1,2048)
 	direction=Spring.GetUnitHeading(unitID)
 	direction = math.abs(direction)
 	preSeed= direction

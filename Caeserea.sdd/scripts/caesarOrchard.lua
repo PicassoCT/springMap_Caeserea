@@ -10,22 +10,22 @@ function script.Create()
 	hideT(TablesOfPiecesGroups["Tree"])
 	hideT(TablesOfPiecesGroups["fruit"])
 	dice= math.ceil(math.random(1,5))
-
+	
 	Show(TablesOfPiecesGroups["Tree"][dice])
 	for i=1,5 do
-	val=math.random(0,360)
-	Turn(TablesOfPiecesGroups["Tree"][dice],y_axis,math.rad(val),0)
-	if math.random(1,5) == 3 then 	Show(TablesOfPiecesGroups["Tree"][i]) end
+		val=math.random(0,360)
+		Turn(TablesOfPiecesGroups["Tree"][dice],y_axis,math.rad(val),0)
+		if math.random(1,5) == 3 then 	Show(TablesOfPiecesGroups["Tree"][i]) end
 	end
 	
 	for i=1,4 do
-	if math.random(0,1) == 1 then
-		Show(TablesOfPiecesGroups["fruit"][i])
+		if math.random(0,1) == 1 then
+			Show(TablesOfPiecesGroups["fruit"][i])
+			
+		end
+	end
 	
-	end
-	end
-	
-	end
+end
 
 
 

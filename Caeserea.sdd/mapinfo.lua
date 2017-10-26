@@ -8,7 +8,7 @@ local mapinfo = {
 	shortname   = "Caeserea",
 	description = "a city by the desert",
 	author      = "PicassoCT",
-	version     = "v2",
+	version     = "v3",
 	--mutator   = "deployment";
 	--mapfile   = "", --// location of smf/sm3 file (optional)
 	modtype     = 3, --// 1=primary, 0=hidden, 3=map

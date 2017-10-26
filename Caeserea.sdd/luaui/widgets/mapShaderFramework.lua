@@ -17,7 +17,11 @@ function widget:GetInfo()
 	}
 end
 
+-- TODO Remove later
+local shader, timeID, pointsID, pointsSizeID
 
+local MAX_POINTS = 10
+local points = {}
 --Name of the Shader Subfolders
 FragmentDIR = "Fragment"
 VertexDIR = "Vertex"
@@ -29,8 +33,9 @@ FileEndingFragment =".fs"
 --Name of the mainDirectory within the spring directory
 RootDIR = "luaui/widgets"
 
-local shader = {}
-compiledMapShader= {}
+
+local shader= {}
+local compiledMapShader = 0
 
 function getUniformDirectory()
 	return RootDIR.."/"..UniformDIR
@@ -93,7 +98,7 @@ function foundMainStartCompleted(line)
 		end
 	end
 	boolMainStarted = matchCounter > 1 
-	boolMainStartCompleted = matchCounter == #stringComponents  +1
+	boolMainStartCompleted = matchCounter == #stringComponents +1
 	
 	if boolMainStartCompleted == true and boolReMainderCut == false then 
 		boolReMainderCut= true
@@ -180,13 +185,13 @@ function extractContextMain(listOfFiles)
 		
 		for i=1, #file do
 			line = file[i]	
-
+			
 			if ignoreLine(line) == false then
 				
 				boolMainStarted, boolMainStartCompleted, boolMainEnded,line = foundMainStartCompleted(line)
 				line= mainBraceManagement(line, boolMainStartCompleted)
 				if (boolMainStarted== false or boolMainStartCompleted == false) or boolMainEnded == true then
-					concatContext= concatContext..line
+					concatContext= concatContext..string.gsub(line,"\r","\n")
 				end
 				
 				if boolMainStartCompleted== true and boolPreAmbleOnce == false then
@@ -196,7 +201,7 @@ function extractContextMain(listOfFiles)
 				
 				if boolMainStartCompleted == true and mainParenthesisStack.getn() > 0 then
 					if mainParenthesisStack.getn() > 0 then
-						concatMain = concatMain..line
+						concatMain = concatMain..string.gsub(line,"\r","\n")
 					end
 				end
 				
@@ -241,7 +246,7 @@ function loadUniform(shaderT)
 end
 
 
-function loadMapShader()
+function loadMapShaderD()
 	
 	listOfVertexFiles	= getDirectoryContentList(getVertexDirectory())
 	if not listOfVertexFiles then echo("MapShaderFramework::No Vertex Files found"); return end
@@ -254,31 +259,98 @@ function loadMapShader()
 	vertexAggregatedContext, vertexAggregatedMain = extractContextMain(listOfVertexFiles)
 	fragmentAggregatedContext, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
 	
-	shader.fragment = fragmentAggregatedContext.. "\n void main(void) { \n"..fragmentAggregatedMain.."\n }"
-	shader.vertex = vertexAggregatedContext.. "\n void main(void) { \n"..vertexAggregatedMain.."\n }"
-	
 	shader = loadUniform(shader)
 	
-	compiledMapShader = gl.CreateShader(shader)
+	local fragment = "#version 120\n"..fragmentAggregatedContext.. "\n void main(void) { \n"..fragmentAggregatedMain.."\n } \n"
+	local vertex = "#version 120\n"..vertexAggregatedContext.."\n void main(void) { \n"..vertexAggregatedMain.."\n } \n"	
+	
+	compiledMapShader = gl.CreateShader({vertex= vertex,
+		fragment= fragment,
+		uniformInt= shader.uniformInt,
+		uniformFloat = shader.uniformFloat
+	})
 	
 	local errors = gl.GetShaderLog(shader)
 	if errors ~= "" or not compiledMapShader then
-		Spring.Log("MapShaderFramework::Error:", LOG.ERROR, errors)
 		Spring.Echo("===================================Fragment Source=================================")
-		Spring.Echo(shader.fragment)
+		Spring.Echo(fragment)
 		Spring.Echo("===================================Vertex Source ==================================")
-		Spring.Echo(shader.vertex)
+		Spring.Echo(vertex)
 		Spring.Echo("===================================================================================")
-		
+		Spring.Log("MapShaderFramework::Error:", LOG.ERROR, errors)
 	end
 	Spring.SetMapShader(compiledMapShader, 0)
 end
 
+function loadMapShader()
+	local vertexShader = [[
+	#define SMF_TEXSQR_SIZE 1024.0
+	
+	uniform ivec2 texSquare;
+	varying vec2 texCoors;
+	
+	varying vec4 colorChange;
+	
+	uniform float time;
+	uniform float points[MAX_POINTS];
+	uniform int pointSize;
+	
+	void main(void) {
+		texCoors = (floor(gl_Vertex.xz) / SMF_TEXSQR_SIZE) - vec2(texSquare);
+		
+		vec4 pos = gl_Vertex;
+		colorChange = vec4(0, 0, 0, 1);
+		for (int i = 0; i < pointSize; i++) {
+			float d = distance(vec2(points[i*3], points[i*3+1]), pos.xz);
+			float dtime = time - points[i*3+2];
+			
+			float timeFalloff = pow(dtime, 3) + 1;
+			float rangeFalloff = pow(d/400, 2) + 1;
+			float rangeFrequency = sin(d/1000 + 1);
+			pos.y += sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff;
+			
+			colorChange += vec4(sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff) / 1000;
+		}
+		gl_Position = gl_ModelViewProjectionMatrix * pos;
+	}
+	]]
+	vertexShader = vertexShader:gsub("MAX_POINTS", tostring(MAX_POINTS*3))
+	
+	
+	shader = gl.CreateShader({
+		vertex = vertexShader,
+		
+		fragment = [[
+		uniform sampler2D texSampler;
+		
+		varying vec2 texCoors;
+		
+		varying vec4 colorChange;
+		
+		void main(void) {
+			gl_FragColor = texture2D(texSampler, texCoors);
+			gl_FragColor += colorChange;
+		}
+		]],
+		
+		uniformInt = {
+			texSampler = 0,
+			pointSize = 0,
+		},
+		uniformFloat = {
+			time = 0,
+		},
+	})
+	
+	local errors = gl.GetShaderLog(shader)
+	if errors ~= "" then
+		Spring.Log("MapShaders", LOG.ERROR, errors)
+	end
+	Spring.SetMapShader(shader, 0)
+end
 
 function widget:Initialize()
-	loadMapShader()
-	
-	
+	loadMapShaderD()
 end
 
 function widget:Shutdown()
@@ -286,15 +358,35 @@ function widget:Shutdown()
 end
 
 function widget:DrawWorld()
-	
 	if compiledMapShader then
-		gl.UseShader(compiledMapShader)
-	end
-	
-	if shader.bindUniforms then 	shader.bindUniforms()	end
-	
-	if shader.updateUniforms then shader.updateUniforms(os.clock()) end
-	if compiledMapShader then
+		gl.UseShader(compiledMapShader)	
+		--shader.updateUniforms(compiledMapShader)
+		if not timeID then
+			timeID = gl.GetUniformLocation(compiledMapShader, "time")
+			pointsID = gl.GetUniformLocation(compiledMapShader, "points")
+			pointSizeID = gl.GetUniformLocation(compiledMapShader, "pointSize")
+		end
+		gl.Uniform( timeID, os.clock())
+		gl.UniformInt( pointSizeID, #points/3)
+		gl.UniformArray(pointsID, 1, points)
+		
 		gl.UseShader(0)
+	end
+end
+
+function widget:MousePress(x, y, button)
+	local time = os.clock()
+	if button == 1 or button == 3 then
+		local result, coords = Spring.TraceScreenRay(x, y, true)
+		if result == "ground" then
+			if #points >= 10 * 3 then
+				table.remove(points, 1)
+				table.remove(points, 1)
+				table.remove(points, 1)
+			end
+			table.insert(points, coords[1])
+			table.insert(points, coords[3])
+			table.insert(points, time)
+		end
 	end
 end
