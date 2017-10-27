@@ -36,10 +36,11 @@ RootDIR = "luaui/widgets"
 
 local shader= {}
 local compiledMapShader = 0
-
+function getShaderDistributionMapPath()
+	return RootDIR.."/shaderDistributionMap.png"
+end
 function getUniformDirectory()
 	return RootDIR.."/"..UniformDIR
-	
 end
 function getFragmentDirectory()
 	return RootDIR.."/".. FragmentDIR
@@ -245,9 +246,29 @@ function loadUniform(shaderT)
 	return shaderT
 end
 
+function loadShaderDistributionMap()
+	shaderDistributionMapPath=	getShaderDistributionMapPath()
+	  --possible ${opt}'s are:
+     -- 'n' = nearest
+     -- 'l' = linear
+     -- 'a' = aniso
+     -- 'i' = invert
+     -- 'g' = greyed
+     -- 'c' = clamped
+     -- 'b' = border
+     -- 't%r,%g,%b' = tint
+     -- 'r%width,%height' = resize
+	-- The above ${opt}'s are NOT available for .DDS textures! .dds will load faster than other image formats.
+	preFix ="::/"
+	gl.Texture(preFix..shaderDistributionMapPath)
 
-function loadMapShaderD()
-	
+
+end
+
+function loadMapShader()
+	--load distribution texture
+	loadShaderDistributionMap()
+	--load shader
 	listOfVertexFiles	= getDirectoryContentList(getVertexDirectory())
 	if not listOfVertexFiles then echo("MapShaderFramework::No Vertex Files found"); return end
 	listOfFragmentFiles	= getDirectoryContentList(getFragmentDirectory())
@@ -282,75 +303,9 @@ function loadMapShaderD()
 	Spring.SetMapShader(compiledMapShader, 0)
 end
 
-function loadMapShader()
-	local vertexShader = [[
-	#define SMF_TEXSQR_SIZE 1024.0
-	
-	uniform ivec2 texSquare;
-	varying vec2 texCoors;
-	
-	varying vec4 colorChange;
-	
-	uniform float time;
-	uniform float points[MAX_POINTS];
-	uniform int pointSize;
-	
-	void main(void) {
-		texCoors = (floor(gl_Vertex.xz) / SMF_TEXSQR_SIZE) - vec2(texSquare);
-		
-		vec4 pos = gl_Vertex;
-		colorChange = vec4(0, 0, 0, 1);
-		for (int i = 0; i < pointSize; i++) {
-			float d = distance(vec2(points[i*3], points[i*3+1]), pos.xz);
-			float dtime = time - points[i*3+2];
-			
-			float timeFalloff = pow(dtime, 3) + 1;
-			float rangeFalloff = pow(d/400, 2) + 1;
-			float rangeFrequency = sin(d/1000 + 1);
-			pos.y += sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff;
-			
-			colorChange += vec4(sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff) / 1000;
-		}
-		gl_Position = gl_ModelViewProjectionMatrix * pos;
-	}
-	]]
-	vertexShader = vertexShader:gsub("MAX_POINTS", tostring(MAX_POINTS*3))
-	
-	
-	shader = gl.CreateShader({
-		vertex = vertexShader,
-		
-		fragment = [[
-		uniform sampler2D texSampler;
-		
-		varying vec2 texCoors;
-		
-		varying vec4 colorChange;
-		
-		void main(void) {
-			gl_FragColor = texture2D(texSampler, texCoors);
-			gl_FragColor += colorChange;
-		}
-		]],
-		
-		uniformInt = {
-			texSampler = 0,
-			pointSize = 0,
-		},
-		uniformFloat = {
-			time = 0,
-		},
-	})
-	
-	local errors = gl.GetShaderLog(shader)
-	if errors ~= "" then
-		Spring.Log("MapShaders", LOG.ERROR, errors)
-	end
-	Spring.SetMapShader(shader, 0)
-end
 
 function widget:Initialize()
-	loadMapShaderD()
+	loadMapShader()
 end
 
 function widget:Shutdown()
@@ -371,6 +326,7 @@ function widget:DrawWorld()
 		gl.UniformArray(pointsID, 1, points)
 		
 		gl.UseShader(0)
+
 	end
 end
 

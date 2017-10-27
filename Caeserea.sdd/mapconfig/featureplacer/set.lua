@@ -16,6 +16,40 @@ orchardCoordPairs={
 local setcfg = {
 	buildinglist = {
 		
+		{ name="caesareagle",
+			x = 2079,
+			z = 781,
+			rotLow = 1,
+			rotUp = 360
+			
+		},		{ name="caesareagle",
+			x = 2794,
+			z = 3653,
+			rotLow = 1,
+			rotUp = 360
+			
+		},	
+		{ name="caesareagle",
+			x = 1417,
+			z = 3162,
+			rotLow = 1,
+			rotUp = 360
+			
+		},		
+		{ name="caesarmarket",
+			x = 2014,
+			z = 1914,
+			rotLow = 1,
+			rotUp = 360
+			
+		},		
+		{ name="caesarmarket",
+			x = 1987,
+			z = 2008,
+			rotLow = 180,
+			rotUp = 190
+			
+		},			
 		{ name="caesarwaypost",
 			x = 496,
 			z = 418,

@@ -10,8 +10,7 @@ function script.Create()
 	hideT(TablesOfPiecesGroups["Pine"])
 	dice= math.ceil(math.random(1,3))
 	Show(TablesOfPiecesGroups["Pine"][dice])
-	
-	end
+end
 
 
 
