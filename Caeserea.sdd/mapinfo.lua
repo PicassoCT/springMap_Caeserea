@@ -6,9 +6,9 @@
 local mapinfo = {
 	name        = "Caeserea",
 	shortname   = "Caeserea",
-	description = "a city by the desert",
+	description = "a city by the desert. Proudly made with Springboard",
 	author      = "PicassoCT",
-	version     = "v5",
+	version     = "6",
 	--mutator   = "deployment";
 	--mapfile   = "", --// location of smf/sm3 file (optional)
 	modtype     = 3, --// 1=primary, 0=hidden, 3=map
