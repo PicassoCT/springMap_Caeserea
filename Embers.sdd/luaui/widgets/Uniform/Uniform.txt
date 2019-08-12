@@ -1,0 +1,20 @@
+return {
+ uniformInt = {
+            texSampler = 0,
+            pointSize  = 0,
+        },
+  uniformFloat = {
+            time = 0,
+        },
+   updateUniforms = function(compiledMapShader)
+	 if not timeID then
+        timeID         = gl.GetUniformLocation(compiledMapShader, "time")
+       pointsID       = gl.GetUniformLocation(compiledMapShader, "points")
+       pointSizeID    = gl.GetUniformLocation(compiledMapShader, "pointSize")
+    end
+	
+    gl.Uniform(     timeID,       os.clock())
+    gl.UniformInt(  pointSizeID,  #points/3)
+    gl.UniformArray(pointsID,     1, points)
+   end
+}
