@@ -5,6 +5,9 @@ return {
   uniformFloat = {
             time = 0,
         },
+
+
+	
    updateUniforms = function(compiledMapShader)
 	 if not timeID then
         timeID         = gl.GetUniformLocation(compiledMapShader, "time")

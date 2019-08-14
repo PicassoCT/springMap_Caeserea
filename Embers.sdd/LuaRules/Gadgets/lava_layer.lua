@@ -17,7 +17,7 @@ local pi = math.pi
 local rand = math.random
 local periodFactor = 0
 local glowPeriodFactor = 0
-
+local signum = 1
 ------------------------------------ SYNCED
 if (gadgetHandler:IsSyncedCode()) then
 
@@ -27,23 +27,26 @@ else
 
 function gadget:DrawWorldPreUnit ()  
 	-- lava planes
-	drawPlane(":a:LuaRules\\Images\\lavacolor6.png",15,7,30,0.001,{1.0,1.0,1.0,1.0}) 
-	drawPlane(":a:LuaRules\\Images\\lavacolor6.png",20,10.8,28,0.0021,{1.0,1.0,1.0,0.6}) 
+
+	drawPlane(":a:LuaRules\\Images\\lavacolor6.png",15,7,30,0.001,{1.0,1.0,1.0,1.0},"alpha") 
+	drawPlane(":a:LuaRules\\Images\\lavacolor6.png",20,10.8,28,0.0021,{1.0,1.0,1.0,0.6},"alpha") 
 	
 	-- fog planes
-	drawPlane(":a:LuaRules\\Images\\lavafog.png",23,1.9,13.9,0.0043,{1.0,1.0,1.0,0.30}) 
-	drawPlane(":a:LuaRules\\Images\\lavafog.png",26,1.3,9.2,0.003,{1.0,1.0,0.1,0.25}) 
+	drawPlane(":a:LuaRules\\Images\\lavafog.png",23,1.9,13.9,0.0043,{1.0,1.0,1.0,0.30},"alpha_add" ) 
+	drawPlane(":a:LuaRules\\Images\\lavafog.png",26,1.3,9.2,0.003,{1.0,1.0,0.1,0.25}, "add") 
 end
 
 
-function drawPlane (texture,y,scaleFactor,periodS,growFactor,rgba)
+function drawPlane (texture,y,scaleFactor,periodS,growFactor,rgba, mode)
 	local t = spGetGameSeconds()
-
+	
 	gl.PushAttrib(GL.ALL_ATTRIB_BITS)
+	gl.Blending( mode )--alpha_add
 	gl.DepthTest(true)
 	gl.DepthMask(true)	
 	
-	periodFactor = sin(2*pi*t/periodS)
+	periodFactor =  sin(2*pi*t/periodS) * math.pi
+	
 	glowPeriodFactor = sin(2*pi*t/(periodS*1.3))
 	scaleFactor = scaleFactor * (1+ periodFactor * growFactor)
 	gl.Texture(0,texture)-- Texture file	
@@ -55,6 +58,7 @@ function drawPlane (texture,y,scaleFactor,periodS,growFactor,rgba)
 	gl.DepthMask(false)
 	gl.DepthTest(false)	
 	gl.PopAttrib()
+	gl.Blending(false)
 end
 
 

@@ -17,7 +17,7 @@ function widget:GetInfo()
 	}
 end
 
--- TODO Remove later
+
 local shader, timeID, pointsID, pointsSizeID
 
 local MAX_POINTS = 10
@@ -92,6 +92,8 @@ function foundMainStartCompleted(line)
 		if i== 5 then 		mainParenthesisStack.push() end
 		
 		if start then
+			prestring, poststring =  string.sub(line,1,start -1),string.sub(line,ends +1,string.len(line))
+			line = prestring .. poststring
 			index = ends + 1
 			matchCounter=matchCounter + 1
 		else 
@@ -175,7 +177,7 @@ boolMainEnded = false
 
 --extracts the Context
 function extractContextMain(listOfFiles)
-	concatContext, concatMain = "", ""
+	concat = ""
 	boolMainStarted = false
 	
 	
@@ -185,34 +187,14 @@ function extractContextMain(listOfFiles)
 		
 		
 		for i=1, #file do
-			line = file[i]	
-			
-			if ignoreLine(line) == false then
-				
-				boolMainStarted, boolMainStartCompleted, boolMainEnded,line = foundMainStartCompleted(line)
-				line= mainBraceManagement(line, boolMainStartCompleted)
-				if (boolMainStarted== false or boolMainStartCompleted == false) or boolMainEnded == true then
-					concatContext= concatContext..string.gsub(line,"\r","\n")
-				end
-				
-				if boolMainStartCompleted== true and boolPreAmbleOnce == false then
-					boolPreAmbleOnce=true
-					concatMain= concatMain.. "// Main::"..fileName.." \n"
-				end					
-				
-				if boolMainStartCompleted == true and mainParenthesisStack.getn() > 0 then
-					if mainParenthesisStack.getn() > 0 then
-						concatMain = concatMain..string.gsub(line,"\r","\n")
-					end
-				end
-				
-			end
+			concat = concat .. file[i]	
+		
 		end
 		reset()
 	end
 	
 	
-	return concatContext, concatMain
+	return concat
 end
 
 function sortByNumberInName( listOfFiles, fileEnding)
@@ -237,6 +219,7 @@ function loadUniform(shaderT)
 	file = VFS.LoadFile(getUniformDirectory().."/Uniform.txt")
 	if not file then Spring.Echo("No Uniform Sourcefile found at "..getUniformDirectory()); return shaderT end
 	uniformFunction = loadstring(file)
+
 	uniformTables= uniformFunction()
 	
 	for key, value in pairs(uniformTables) do
@@ -277,13 +260,13 @@ function loadMapShader()
 	listOfVertexFiles = sortByNumberInName( listOfVertexFiles, FileEndingVertex)
 	listOfFragmentFiles = sortByNumberInName( listOfFragmentFiles, FileEndingFragment)
 	
-	vertexAggregatedContext, vertexAggregatedMain = extractContextMain(listOfVertexFiles)
-	fragmentAggregatedContext, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
+	vertexSource  = extractContextMain(listOfVertexFiles)
+	fragmentSource, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
 	
 	shader = loadUniform(shader)
 	
-	local fragment = "#version 120\n"..fragmentAggregatedContext.. "\n void main(void) { \n"..fragmentAggregatedMain.."\n } \n"
-	local vertex = "#version 120\n"..vertexAggregatedContext.."\n void main(void) { \n"..vertexAggregatedMain.."\n } \n"	
+	local fragment = "#version 120\n"..fragmentSource.."\n"	
+	local vertex = "#version 120\n"..vertexSource.."\n"	
 	
 	compiledMapShader = gl.CreateShader({vertex= vertex,
 		fragment= fragment,
@@ -298,7 +281,9 @@ function loadMapShader()
 		Spring.Echo("===================================Vertex Source ==================================")
 		Spring.Echo(vertex)
 		Spring.Echo("===================================================================================")
+		if errors then 
 		Spring.Log("MapShaderFramework::Error:", LOG.ERROR, errors)
+		end
 	end
 	Spring.SetMapShader(compiledMapShader, 0)
 end
@@ -315,7 +300,7 @@ end
 function widget:DrawWorld()
 	if compiledMapShader then
 		gl.UseShader(compiledMapShader)	
-		--shader.updateUniforms(compiledMapShader)
+		shader.updateUniforms(compiledMapShader)
 		if not timeID then
 			timeID = gl.GetUniformLocation(compiledMapShader, "time")
 			pointsID = gl.GetUniformLocation(compiledMapShader, "points")
