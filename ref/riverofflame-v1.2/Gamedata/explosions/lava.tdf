@@ -1,0 +1,187 @@
+[lavasplash]
+{
+	usedefaultexplosions=0;	
+	[smoke]
+	{
+		[properties]
+		{
+       			color = 0.5;
+	       		startSize = 10 d0.1 r2;
+	       		sizeExpansion = 1 d0.02;
+	       		ageSpeed=0.050;
+	       		pos = 0, 0, 0;
+	       		speed=0, 1 r0.2 d0.02, 0;
+		}
+		air=1;
+      	water=1;
+		unit=1;
+		underwater=0;
+	    ground=1;
+      	count=1;
+   	}
+	[spikes]
+	{
+		class=explspike;
+		[properties]
+		{
+			dir=-1 r2,-1 r2,-1 r2;
+			width=17 d0.5;
+			length=20 d0.5;
+			alpha=0.5;
+			alphadecay=0.1;
+			color=1.0, 0.3, 0.1;
+			alwaysVisible=1;
+
+		}
+		air=1;
+		water=0;
+		ground=1;
+  		count=1; 
+	}
+	[exhale]
+	{
+		class=CSimpleParticleSystem;
+		[properties]
+		{
+			sizeGrowth=0.16;
+			sizeMod=1.0;
+			pos=0, 1, 0; 
+			gravity=0, 0, 0;
+			
+
+			Texture=lavasplash2;
+			airdrag=0.9;
+			colorMap=0.5 0.3 0.1 0.3 0.4 0.2 0.1 0.2 0.0 0.0 0.0 0.01;
+
+			particleLifeSpread=5; 
+			particleSpeedSpread=1;  
+			particleSizeSpread=1;   
+			
+			particleLife=10 d0.3;
+			numParticles=2; 
+			particleSpeed=2 d0.01; 
+			particleSize=1 d0.1;
+			
+			
+			emitVector=0, 1, 0; 
+			emitRot=40;
+			emitRotSpread=5; 
+			directional=0; 
+			
+			alwaysVisible=1;
+		}
+		air=1;
+		water=0;
+		ground=1;
+		count=1;
+	}
+	[exhale3]
+	{
+		class=CSimpleParticleSystem;
+		[properties]
+		{
+			sizeGrowth=0.16;
+			sizeMod=1.0;
+			pos=0, 1, 0; 
+			gravity=0, 0, 0;
+			
+
+			Texture=lavasplash;
+			airdrag=0.9;
+			colorMap=0.5 0.3 0.2 0.15 0.3 0.2 0.1 0.1 0.0 0.0 0.0 0.01;
+
+			particleLifeSpread=5; 
+			particleSpeedSpread=1;  
+			particleSizeSpread=3;   
+			
+			particleLife=8 d0.1;
+			numParticles=2; 
+			particleSpeed=2 d0.01; 
+			particleSize=3 d0.1;
+			
+			
+			emitVector=0, 1, 0; 
+			emitRot=40;
+			emitRotSpread=5; 
+			directional=0; 
+			alwaysVisible=1;
+		}
+
+		air=1;
+		water=0;
+		ground=1;
+		count=1;
+	}
+	[puffs]
+	{
+		class=CSimpleParticleSystem;
+		[properties]
+		{
+			sizeGrowth=0.3;
+			sizeMod=1.0;
+			pos=0, 1, 0; 
+			gravity=0, 0.1, 0;
+		
+
+			Texture=lavasplash2;
+			airdrag=0.77;
+			colorMap=0.4 0.3 0.1 0.1  0.3 0.1 0.0 0.1     0.0 0.0 0.0 0.01;
+
+			particleLifeSpread=6; 
+			particleSpeedSpread=2.5;  
+			particleSizeSpread=1 d0.1;
+		
+			particleLife=8 d0.1;
+			numParticles=2 d0.05; 
+			particleSpeed=3 r2; 
+			particleSize=3 d0.3;
+		
+			emitVector=0, 1, 0; 
+			emitRot=40;
+			emitRotSpread=5; 
+			directional=0; 
+			alwaysVisible=1;	
+		}
+		air=1;
+		water=1;
+		underwater=1;
+		ground=1;
+		count=1;
+	}
+	[puffs2]
+	{
+		class=CSimpleParticleSystem;
+		[properties]
+		{
+			sizeGrowth=0.3;
+			sizeMod=1.0;
+			pos=0, 1, 0; 
+			gravity=0, 0.2, 0;
+		
+
+			Texture=lavasplash3;
+			airdrag=0.77;
+			colorMap=1.0 0.8 0.3 0.3  0.4 0.1 0.0 0.1     0.0 0.0 0.0 0.01;
+
+			particleLifeSpread=6; 
+			particleSpeedSpread=2.5;  
+			particleSizeSpread=1 d0.1;
+		
+			particleLife=17 d0.25;
+			numParticles=2 d0.05; 
+			particleSpeed=7 r4 d0.01; 
+			particleSize=4 d0.3;
+		
+			emitVector=0, 1, 0; 
+			emitRot=40;
+			emitRotSpread=5; 
+			directional=0; 
+			alwaysVisible=1;	
+		}
+		air=1;
+		water=1;
+		underwater=1;
+		ground=1;
+		count=1;
+	}
+}

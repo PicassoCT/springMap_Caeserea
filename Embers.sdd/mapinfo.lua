@@ -4,34 +4,34 @@
 --
 
 local mapinfo = {
-	name        = "Embers",
-	shortname   = "Embers",
-	description = "a burning world",
-	author      = "PicassoCT",
-	version     = "6",
+	name        = "The Embers",
+	shortname   = "embers",
+	description = "derivative of river of flames. 2-8 players.",
+	author      = "raaar modified by picasso",
+	version     = "v1.2",
 	--mutator   = "deployment";
-	--mapfile   = "", --// location of smf/sm3 file (optional)
+	mapfile   = "maps/riverofflame.smf", --// location of smf/sm3 file (optional)
 	modtype     = 3, --// 1=primary, 0=hidden, 3=map
-	depend      = {"Map Helper v1"},
+	depend      = {},
 	replace     = {},
 
 	--startpic   = "", --// deprecated
 	--StartMusic = "", --// deprecated
 
-	maphardness     = 100,
+	maphardness     = 400,
 	notDeformable   = false,
 	gravity         = 130,
 	tidalStrength   = 0,
 	maxMetal        = 6.00,
 	extractorRadius = 32.0,
-	voidWater       = false,
+	voidWater       = true,
 	autoShowMetal   = true,
 
 
 	smf = {
-		minheight = -275,--589 -- -260
-		maxheight = 273,--1152
-		--smtFileName0 = "",
+		minheight = -100,
+		maxheight = 1000,
+		smtFileName0 = "maps/riverofflame.smt",
 		--smtFileName1 = "",
 		--smtFileName.. = "",
 		--smtFileNameN = "",
@@ -95,91 +95,92 @@ local mapinfo = {
 	},
 
 	resources = {
-		grassBladeTex = "grassbladetex.bmp",
-		grassShadingTex = "grassshading.bmp",
-		detailTex = "terradetail.bmp",
-		specularTex = "spec.tif",
-		splatDetailTex = "splatt.tif",
-		splatDistrTex = "splatd.tif",
+		--grassBladeTex = "",
+		--grassShadingTex = "",
+		detailTex = "maps/detailtexbright.bmp",
+		--specularTex = "",
+		--splatDetailTex = "",
+		--splatDistrTex = "",
 		--skyReflectModTex = "",
 		--detailNormalTex = "",
 		--lightEmissionTex = "",
 	},
 
 	splats = {
-	--	texScales = {0.02, 0.006125, 0.003125, 0.006125},
-		texScales = {0.01, 0.006125, 0.003125, 0.006125},
-		texMults  = {2.14159, 1.414, 1.9141, 0.91},
+		texScales = {0.02, 0.02, 0.02, 0.02},
+		texMults  = {1.0, 1.0, 1.0, 1.0},
 	},
 
-atmosphere = {
+	atmosphere = {
+		minWind      = 5.0,
+		maxWind      = 20.0,
 
-		minWind      = 2,
-		maxWind      = 30,
-
-		fogStart     = 0.9,
+		fogStart     = 0.5,
 		fogEnd       = 1.0,
-		fogColor     = {0.0, 0.0, 0.0},
+		fogColor     = {0.7, 0.5, 0.4},
 
-		sunColor     = {1.0, 0.5, 0.4},
-		skycolor     = {0.9, 0.1, 0.0},
-		skyDir       = {0.0, 0.0, -1.0},
-		skyBox       = "yellowclouds.dds",
+		sunColor     = {1.0, 1.0, 1.0},
+		skyColor     = {0.9, 0.9, 1.0},
+		skyDir       = {0.0, 0.0, -10.0},
+		skyBox       = "",
 
-		cloudDensity = 0.65,
-		cloudColor   = {0.1, 0.1, 1},
+		cloudDensity = 0.5,
+		cloudColor   = {1.0, 1.0, 1.0},
 	},
 
 	grass = {
-		bladeWaveScale = 3.0,
-		bladeWidth  = 0.4,
-		bladeHeight = 4.3,
+		bladeWaveScale = 1.0,
+		bladeWidth  = 0.32,
+		bladeHeight = 4.0,
 		bladeAngle  = 1.57,
-		bladeColor  = {0.26, 0.46, 0.03}, --// does nothing when `grassBladeTex` is set
+		bladeColor  = {0.59, 0.81, 0.57}, --// does nothing when `grassBladeTex` is set
 	},
 
 	lighting = {
 		--// dynsun
 		sunStartAngle = 0.0,
 		sunOrbitTime  = 1440.0,
-		sundir        = { -0.5, 0.5, 0.5 },
+		sunDir        = {0.3, 1.0, 1},
 
 		--// unit & ground lighting
-         groundambientcolor            = { 0.94, 0.64, 0.74 },
-         grounddiffusecolor            = { 1.0, 0.75, 0.8 },
-         groundshadowdensity           = 0.95,
-         unitambientcolor           = { 0.85, 0.55, 0.65 },
-         unitdiffusecolor           = { 1.0, 0.75, 0.8 },
-         unitshadowdensity          = 0.95,
-		 specularsuncolor           = { 1.0, 0.65, 0.75 },
-		 
+		groundAmbientColor  = {1.0, 1.0, 1.0},
+		groundDiffuseColor  = {1.0, 1.0, 1.0},
+		groundSpecularColor = {0.0, 0.0, 0.0},
+		groundShadowDensity = 0.8,
+		unitAmbientColor    = {0.5, 0.5, 0.5},
+		unitDiffuseColor    = {0.7, 0.7, 0.7},
+		unitSpecularColor   = {0.7, 0.7, 0.7},
+		unitShadowDensity   = 0.8,
+		
 		specularExponent    = 100.0,
 	},
 	
+	
 	water = {
-		damage =  0,
+		damage =  100.0,
 
 		repeatX = 0.0,
 		repeatY = 0.0,
 
-		absorb    = { 0.012, 0.006, 0.0045 },
-		basecolor = { 0.70, 0.9, 1.0 },
-		mincolor  = { 0.02, 0.45, 0.65 },
+		absorb    = {0.0, 0.0, 0.0},
+		baseColor = {0.8, 0.6, 0.2},
+		minColor  = {0.8, 0.6, 0.2},
 
-		ambientFactor  = 1.3,
-		diffuseFactor  = 1.0,
-		specularFactor = 1.4,
-		specularPower  = 40.0,
+		ambientFactor  = 0.0,
+		diffuseFactor  = 0.0,
+		specularFactor = 0.0,
+		specularPower  = 20.0,
 
-		surfacecolor  = { 0.6, 0.54, 0.86 },
-		surfaceAlpha  = 0.16,
-		--diffuseColor  = {0.0, 0.0, 0.0},
-		specularColor = {0.5, 0.5, 0.5},
-		--planeColor = {0.0, 0.0, 0.0},
+		planeColor = {0.5, 0.5, 0.5},
 
-		fresnelMin   = 0.3,
+		surfaceColor  = {0.8, 0.6, 0.2},
+		surfaceAlpha  = 1.0,
+		diffuseColor  = {0.8, 0.6, 0.2},
+		specularColor = {0.8, 0.6, 0.2},
+
+		fresnelMin   = 0.2,
 		fresnelMax   = 0.8,
-		fresnelPower = 8.0,
+		fresnelPower = 4.0,
 
 		reflectionDistortion = 1.0,
 
@@ -193,8 +194,6 @@ atmosphere = {
 
 		shoreWaves = false,
 		forceRendering = false,
-		
-		hasWaterPlane = false,
 
 		--// undefined == load them from resources.lua!
 		--texture =       "",
@@ -207,15 +206,17 @@ atmosphere = {
 	},
 
 	teams = {
-		[0] = {startPos = {x = 256, z = 256}},
-		[1] = {startPos = {x = 4096-256, z = 256}},
-		[2] = {startPos = {x = 4096-256, z = 4096-256}},
-		[3] = {startPos = {x = 256, z = 4096-256}},
+		[0] = {startPos = {x = 500, z = 500}},		-- nw
+		[2] = {startPos = {x = 500, z = 6144-500}},		-- sw
+		
+		[1] = {startPos = {x = 7168-500, z = 6144-500}},	--se
+		[3] = {startPos = {x = 7168-500, z = 500}},		-- ne
+
 	},
 
 	terrainTypes = {
 		[0] = {
-			name = "Default",
+			name = "Ground",
 			hardness = 1.0,
 			receiveTracks = true,
 			moveSpeeds = {
@@ -225,20 +226,25 @@ atmosphere = {
 				ship  = 1.0,
 			},
 		},
+		[255] = {
+			name = "Lava",
+			hardness = 1000.0,
+			receiveTracks = false,
+			moveSpeeds = {
+				tank  = 0.0,
+				kbot  = 0.0,
+				hover = 0.0,
+				ship  = 0.0,
+			},
+		},	
 	},
 
 	custom = {
+		zkminwindmult = 0.4,
 		fog = {
-			color    = {0.26, 0.30, 0.41},
-			height   = "80%", --// allows either absolue sizes or in percent of map's MaxHeight
-			fogatten = 0.003,
-		},
-		precipitation = {
-			density   = 30000,
-			size      = 1.5,
-			speed     = 50,
-			windscale = 1.2,
-			texture   = 'LuaGaia/effects/snowflake.png',
+			color    = {1.0, 1.0, 1.0},
+			height   = "30%", --// allows either absolute sizes or in percent of map's MaxHeight
+			fogatten = 0.003, -- 0.003
 		},
 	},
 }
