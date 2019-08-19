@@ -1,15 +1,15 @@
-
+//precision highp float;
 attribute vec3 position;
 attribute vec3 normal;
 varying vec3 fNormal;
+
+uniform float time;
 varying float changeRate;
 float totalTime=1.0;
 float PI_HALF= 3.14159/2.0;
 float PI =3.14159;
 
 
-
-uniform  float time;
 
 void main(void)
 {

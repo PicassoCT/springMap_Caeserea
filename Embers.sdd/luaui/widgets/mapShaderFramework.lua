@@ -36,11 +36,10 @@ RootDIR = "luaui/widgets"
 
 local shader= {}
 local compiledMapShader = 0
-function getShaderDistributionMapPath()
-	return RootDIR.."/shaderDistributionMap.png"
-end
+
 function getUniformDirectory()
 	return RootDIR.."/"..UniformDIR
+	
 end
 function getFragmentDirectory()
 	return RootDIR.."/".. FragmentDIR
@@ -92,8 +91,6 @@ function foundMainStartCompleted(line)
 		if i== 5 then 		mainParenthesisStack.push() end
 		
 		if start then
-			prestring, poststring =  string.sub(line,1,start -1),string.sub(line,ends +1,string.len(line))
-			line = prestring .. poststring
 			index = ends + 1
 			matchCounter=matchCounter + 1
 		else 
@@ -177,7 +174,7 @@ boolMainEnded = false
 
 --extracts the Context
 function extractContextMain(listOfFiles)
-	concat = ""
+	concatContext, concatMain = "", ""
 	boolMainStarted = false
 	
 	
@@ -187,14 +184,34 @@ function extractContextMain(listOfFiles)
 		
 		
 		for i=1, #file do
-			concat = concat .. file[i]	
-		
+			line = file[i]	
+			
+			if ignoreLine(line) == false then
+				
+				boolMainStarted, boolMainStartCompleted, boolMainEnded,line = foundMainStartCompleted(line)
+				line= mainBraceManagement(line, boolMainStartCompleted)
+				if (boolMainStarted== false or boolMainStartCompleted == false) or boolMainEnded == true then
+					concatContext= concatContext..string.gsub(line,"\r","\n")
+				end
+				
+				if boolMainStartCompleted== true and boolPreAmbleOnce == false then
+					boolPreAmbleOnce=true
+					concatMain= concatMain.. "// Main::"..fileName.." \n"
+				end					
+				
+				if boolMainStartCompleted == true and mainParenthesisStack.getn() > 0 then
+					if mainParenthesisStack.getn() > 0 then
+						concatMain = concatMain..string.gsub(line,"\r","\n")
+					end
+				end
+				
+			end
 		end
 		reset()
 	end
 	
 	
-	return concat
+	return concatContext, concatMain
 end
 
 function sortByNumberInName( listOfFiles, fileEnding)
@@ -219,7 +236,6 @@ function loadUniform(shaderT)
 	file = VFS.LoadFile(getUniformDirectory().."/Uniform.txt")
 	if not file then Spring.Echo("No Uniform Sourcefile found at "..getUniformDirectory()); return shaderT end
 	uniformFunction = loadstring(file)
-
 	uniformTables= uniformFunction()
 	
 	for key, value in pairs(uniformTables) do
@@ -229,29 +245,9 @@ function loadUniform(shaderT)
 	return shaderT
 end
 
-function loadShaderDistributionMap()
+
+function loadMapShaderD()
 	
-	  --possible ${opt}'s are:
-     -- 'n' = nearest
-     -- 'l' = linear
-     -- 'a' = aniso
-     -- 'i' = invert
-     -- 'g' = greyed
-     -- 'c' = clamped
-     -- 'b' = border
-     -- 't%r,%g,%b' = tint
-     -- 'r%width,%height' = resize
-	-- The above ${opt}'s are NOT available for .DDS textures! .dds will load faster than other image formats.
-	preFix ="::/"
-	gl.Texture(preFix..shaderDistributionMapPath)
-
-
-end
-
-function loadMapShader()
-	--load distribution texture
-	-- loadShaderDistributionMap()
-	--load shader
 	listOfVertexFiles	= getDirectoryContentList(getVertexDirectory())
 	if not listOfVertexFiles then echo("MapShaderFramework::No Vertex Files found"); return end
 	listOfFragmentFiles	= getDirectoryContentList(getFragmentDirectory())
@@ -260,13 +256,13 @@ function loadMapShader()
 	listOfVertexFiles = sortByNumberInName( listOfVertexFiles, FileEndingVertex)
 	listOfFragmentFiles = sortByNumberInName( listOfFragmentFiles, FileEndingFragment)
 	
-	vertexSource  = extractContextMain(listOfVertexFiles)
-	fragmentSource, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
+	vertexAggregatedContext, vertexAggregatedMain = extractContextMain(listOfVertexFiles)
+	fragmentAggregatedContext, fragmentAggregatedMain = extractContextMain(listOfFragmentFiles)
 	
 	shader = loadUniform(shader)
 	
-	local fragment = "#version 120\n"..fragmentSource.."\n"	
-	local vertex = "#version 120\n"..vertexSource.."\n"	
+	local fragment = "#version 120\n"..fragmentAggregatedContext.. "\n void main(void) { \n"..fragmentAggregatedMain.."\n } \n"
+	local vertex = "#version 120\n"..vertexAggregatedContext.."\n void main(void) { \n"..vertexAggregatedMain.."\n } \n"	
 	
 	compiledMapShader = gl.CreateShader({vertex= vertex,
 		fragment= fragment,
@@ -281,16 +277,80 @@ function loadMapShader()
 		Spring.Echo("===================================Vertex Source ==================================")
 		Spring.Echo(vertex)
 		Spring.Echo("===================================================================================")
-		if errors then 
 		Spring.Log("MapShaderFramework::Error:", LOG.ERROR, errors)
-		end
 	end
 	Spring.SetMapShader(compiledMapShader, 0)
 end
 
+function loadMapShader()
+	local vertexShader = [[
+	#define SMF_TEXSQR_SIZE 1024.0
+	
+	uniform ivec2 texSquare;
+	varying vec2 texCoors;
+	
+	varying vec4 colorChange;
+	
+	uniform float time;
+	uniform float points[MAX_POINTS];
+	uniform int pointSize;
+	
+	void main(void) {
+		texCoors = (floor(gl_Vertex.xz) / SMF_TEXSQR_SIZE) - vec2(texSquare);
+		
+		vec4 pos = gl_Vertex;
+		colorChange = vec4(0, 0, 0, 1);
+		for (int i = 0; i < pointSize; i++) {
+			float d = distance(vec2(points[i*3], points[i*3+1]), pos.xz);
+			float dtime = time - points[i*3+2];
+			
+			float timeFalloff = pow(dtime, 3) + 1;
+			float rangeFalloff = pow(d/400, 2) + 1;
+			float rangeFrequency = sin(d/1000 + 1);
+			pos.y += sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff;
+			
+			colorChange += vec4(sin(dtime*10) * 200 / rangeFalloff * rangeFrequency / timeFalloff) / 1000;
+		}
+		gl_Position = gl_ModelViewProjectionMatrix * pos;
+	}
+	]]
+	vertexShader = vertexShader:gsub("MAX_POINTS", tostring(MAX_POINTS*3))
+	
+	
+	shader = gl.CreateShader({
+		vertex = vertexShader,
+		
+		fragment = [[
+		uniform sampler2D texSampler;
+		
+		varying vec2 texCoors;
+		
+		varying vec4 colorChange;
+		
+		void main(void) {
+			gl_FragColor = texture2D(texSampler, texCoors);
+			gl_FragColor += colorChange;
+		}
+		]],
+		
+		uniformInt = {
+			texSampler = 0,
+			pointSize = 0,
+		},
+		uniformFloat = {
+			time = 0,
+		},
+	})
+	
+	local errors = gl.GetShaderLog(shader)
+	if errors ~= "" then
+		Spring.Log("MapShaders", LOG.ERROR, errors)
+	end
+	Spring.SetMapShader(shader, 0)
+end
 
 function widget:Initialize()
-	loadMapShader()
+	loadMapShaderD()
 end
 
 function widget:Shutdown()
@@ -300,7 +360,7 @@ end
 function widget:DrawWorld()
 	if compiledMapShader then
 		gl.UseShader(compiledMapShader)	
-		shader.updateUniforms(compiledMapShader)
+		--shader.updateUniforms(compiledMapShader)
 		if not timeID then
 			timeID = gl.GetUniformLocation(compiledMapShader, "time")
 			pointsID = gl.GetUniformLocation(compiledMapShader, "points")
@@ -311,7 +371,6 @@ function widget:DrawWorld()
 		gl.UniformArray(pointsID, 1, points)
 		
 		gl.UseShader(0)
-
 	end
 end
 

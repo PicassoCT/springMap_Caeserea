@@ -1,7 +1,6 @@
-
+//precision highp float;
 uniform float time;
 varying vec3 fNormal;
-varying float changeRate;
 
 vec3 hit= vec3(1.0,0.8,0.3 );
 vec3 glowing= vec3(0.9,0.3,0.1);
