@@ -13,7 +13,7 @@ vec3 currColor;
 float averageShadow;
 
 float PI=3.14159;
-float totalTime=1.0;
+float totalTime=6.0;
 float percenTage=0.0;
 vec3 emptyVec = vec3(0.0,0.0,0.0);
 
