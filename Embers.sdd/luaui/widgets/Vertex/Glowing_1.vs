@@ -17,8 +17,8 @@
 
 
         void main(void) {		
-				fNormal = normalize(gl_NormalMatrix  * gl_Normal);
-			
+				fNormal = gl_Vertex.xyz;//normalize(gl_NormalMatrix  * gl_Normal.xyz);
+				fNormal.y= fNormal.y/300.0;
 				// fNormal = gl_Normal.xyz; //normalize(gl_NormalMatrix* gl_Vertex.xyz);
 			
 				float sigNum = 1.0;

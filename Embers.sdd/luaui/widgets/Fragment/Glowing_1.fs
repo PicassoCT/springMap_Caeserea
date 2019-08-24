@@ -36,16 +36,14 @@ vec3 openEnded(vec3 x, float Time, float TimeLimit, vec3 deFault)
 					averageShadow=(fNormal.x * fNormal.x + fNormal.y * fNormal.y + fNormal.z + fNormal.z)/3.25;
 
 					currColor=(
-					 //clampAfter(hit*cos(percenTage)*2.0,percenTage,0.5*PI) 
+
 					 (percenTage < 0.5 * PI ?  hit * cos(percenTage) * 2.0 :emptyVec)
-					//+ clampAfter(glowing*sin(percenTage)*2.5,percenTage,PI)
 					+ (percenTage < PI ? glowing * sin(percenTage) * 2.5 :emptyVec)
-					//+clampAfter(cooldown*sin(PI+percenTage)*2.0,PI+percenTage,PI*2.0)
 					+ (percenTage < PI * 2.0 ? cooldown*sin(PI + percenTage)*2.0 :emptyVec)
-					//+openEnded(wreck*abs(sin(PI+percenTage)),PI+percenTage,PI*2.0,abs(wreck*0.3))
 					+openEnded(wreck * abs(sin(PI+percenTage)),PI + percenTage,PI*2.0,abs(wreck*0.3))
 					);
 
 					  gl_FragColor = vec4(currColor*(1.0 - averageShadow), 1);
-					  //gl_FragColor = vec4(0.5,0.5,0.0, 1);
+					 gl_FragColor = vec4(1.0 - fNormal.y, 0, 0, 1.0);
+
             }
